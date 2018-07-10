@@ -1,15 +1,13 @@
-import java.util.*;
-
 /**
  * Created by User on 7/6/2018.
  */
-public class Utilities {
-    public static final String sql1 = "explain analyze select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - ?::INTERVAL group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus LIMIT 1;";
-    public static final String sql2 = "explain analyze select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = ? and p_type like ? and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and ps_supplycost = ( select min(ps_supplycost) from	partsupp,supplier,nation,region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE') order by s_acctbal desc, n_name, s_name, p_partkey LIMIT 100;";
-    public static final String sql3 = "explain analyze select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate,o_shippriority from customer, orders, lineitem where c_mktsegment = ? and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < ? and l_shipdate > ? group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate LIMIT 10;";
-    public static final String sql4 = "explain analyze select o_orderpriority, count(*) as order_count from orders where o_orderdate >= ?::DATE and o_orderdate < ?::DATE + interval '3' month and exists (select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate) group by o_orderpriority order by o_orderpriority LIMIT 1;";
-    public static final String sql5 = "explain analyze select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer,orders,lineitem,supplier,nation,region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and o_orderdate >= ? and o_orderdate < ?::DATE + interval '1' year group by n_name order by revenue desc LIMIT 1;";
-    public static final String sql6 = "explain analyze select\n" +
+public class Queries {
+    public static final String sql1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - ?::INTERVAL group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus LIMIT 1;";
+    public static final String sql2 = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = ? and p_type like ? and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and ps_supplycost = ( select min(ps_supplycost) from	partsupp,supplier,nation,region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE') order by s_acctbal desc, n_name, s_name, p_partkey LIMIT 100;";
+    public static final String sql3 = "select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate,o_shippriority from customer, orders, lineitem where c_mktsegment = ? and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < ? and l_shipdate > ? group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate LIMIT 10;";
+    public static final String sql4 = " select o_orderpriority, count(*) as order_count from orders where o_orderdate >= ?::DATE and o_orderdate < ?::DATE + interval '3' month and exists (select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate) group by o_orderpriority order by o_orderpriority LIMIT 1;";
+    public static final String sql5 = " select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer,orders,lineitem,supplier,nation,region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and o_orderdate >= ? and o_orderdate < ?::DATE + interval '1' year group by n_name order by revenue desc LIMIT 1;";
+    public static final String sql6 = " select\n" +
             "\tsum(l_extendedprice * l_discount) as revenue\n" +
             "from\n" +
             "\tlineitem\n" +
@@ -19,7 +17,7 @@ public class Utilities {
             "\tand l_discount between ? - 0.01 and ? + 0.01\n" +
             "\tand l_quantity < ?\n" +
             "LIMIT 1;";
-    public static final String sql7 = "explain analyze select\n" +
+    public static final String sql7 = " select\n" +
             "\tsupp_nation,\n" +
             "\tcust_nation,\n" +
             "\tl_year,\n" +
@@ -59,7 +57,7 @@ public class Utilities {
             "\tcust_nation,\n" +
             "\tl_year\n" +
             "LIMIT 1;";
-    public static final String sql8 = "explain analyze select\n" +
+    public static final String sql8 = " select\n" +
             "\to_year,\n" +
             "\tsum(case\n" +
             "\t\twhen nation = ? then volume\n" +
@@ -97,7 +95,7 @@ public class Utilities {
             "order by\n" +
             "\to_year\n" +
             "LIMIT 1;";
-    public static final String sql9 = "explain analyze select\n" +
+    public static final String sql9 = " select\n" +
             "\tnation,\n" +
             "\to_year,\n" +
             "\tsum(amount) as sum_profit\n" +
@@ -130,7 +128,7 @@ public class Utilities {
             "\tnation,\n" +
             "\to_year desc\n" +
             "LIMIT 1;";
-    public static final String sql10 = "explain analyze select\n" +
+    public static final String sql10 = " select\n" +
             "\tc_custkey,\n" +
             "\tc_name,\n" +
             "\tsum(l_extendedprice * (1 - l_discount)) as revenue,\n" +
@@ -162,7 +160,7 @@ public class Utilities {
             "order by\n" +
             "\trevenue desc\n" +
             "LIMIT 20;";
-    public static final String sql11 = "explain analyze select\n" +
+    public static final String sql11 = " select\n" +
             "\tps_partkey,\n" +
             "\tsum(ps_supplycost * ps_availqty) as value\n" +
             "from\n" +
@@ -190,7 +188,7 @@ public class Utilities {
             "order by\n" +
             "\tvalue desc\n" +
             "LIMIT 1;";
-    public static final String sql12 = "explain analyze select\n" +
+    public static final String sql12 = " select\n" +
             "\tl_shipmode,\n" +
             "\tsum(case\n" +
             "\t\twhen o_orderpriority = '1-URGENT'\n" +
@@ -219,7 +217,7 @@ public class Utilities {
             "order by\n" +
             "\tl_shipmode\n" +
             "LIMIT 1;";
-    public static final String sql13 = "explain analyze select\n" +
+    public static final String sql13 = " select\n" +
             "\tc_count,\n" +
             "\tcount(*) as custdist\n" +
             "from\n" +
@@ -240,7 +238,7 @@ public class Utilities {
             "\tcustdist desc,\n" +
             "\tc_count desc\n" +
             "LIMIT 1;";
-    public static final String sql14 = "explain analyze select\n" +
+    public static final String sql14 = " select\n" +
             "\t100.00 * sum(case\n" +
             "\t\twhen p_type like 'PROMO%'\n" +
             "\t\t\tthen l_extendedprice * (1 - l_discount)\n" +
@@ -267,7 +265,7 @@ public class Utilities {
             "\t\tl_suppkey;\n" +
             "\n" +
             "\n" +
-            "explain analyze select\n" +
+            " select\n" +
             "\ts_suppkey,\n" +
             "\ts_name,\n" +
             "\ts_address,\n" +
@@ -287,7 +285,7 @@ public class Utilities {
             "order by\n" +
             "\ts_suppkey\n" +
             "LIMIT 1; drop view revenue0;";
-    public static final String sql16 = "explain analyze select\n" +
+    public static final String sql16 = " select\n" +
             "\tp_brand,\n" +
             "\tp_type,\n" +
             "\tp_size,\n" +
@@ -318,7 +316,7 @@ public class Utilities {
             "\tp_type,\n" +
             "\tp_size\n" +
             "LIMIT 1;";
-    public static final String sql17 = "explain analyze select sum(l_extendedprice) / 7.0 as avg_yearly from\n" +
+    public static final String sql17 = " select sum(l_extendedprice) / 7.0 as avg_yearly from\n" +
             "\tlineitem,\n" +
             "\tpart,\n" +
             "\t(SELECT l_partkey AS agg_partkey, 0.2 * avg(l_quantity) AS avg_quantity FROM lineitem GROUP BY l_partkey) part_agg\n" +
@@ -329,7 +327,7 @@ public class Utilities {
             "\tand p_container = ?\n" +
             "\tand l_quantity < avg_quantity\n" +
             "LIMIT 1;";
-    public static final String sql18 = "explain analyze select\n" +
+    public static final String sql18 = " select\n" +
             "\tc_name,\n" +
             "\tc_custkey,\n" +
             "\to_orderkey,\n" +
@@ -362,7 +360,7 @@ public class Utilities {
             "\to_totalprice desc,\n" +
             "\to_orderdate\n" +
             "LIMIT 100;";
-    public static final java.lang.String sql19 = "explain analyze select\n" +
+    public static final java.lang.String sql19 = " select\n" +
             "\tsum(l_extendedprice* (1 - l_discount)) as revenue\n" +
             "from\n" +
             "\tlineitem,\n" +
@@ -398,7 +396,7 @@ public class Utilities {
             "\t\tand l_shipinstruct = 'DELIVER IN PERSON'\n" +
             "\t)\n" +
             "LIMIT 1; ";
-    public static final java.lang.String sql20 = "explain analyze select\n" +
+    public static final java.lang.String sql20 = " select\n" +
             "\ts_name,\n" +
             "\ts_address\n" +
             "from\n" +
@@ -442,7 +440,7 @@ public class Utilities {
             "order by\n" +
             "\ts_name\n" +
             "LIMIT 1;";
-    public static final String sql21 = "explain analyze select\n" +
+    public static final String sql21 = " select\n" +
             "\ts_name,\n" +
             "\tcount(*) as numwait\n" +
             "from\n" +
@@ -482,7 +480,7 @@ public class Utilities {
             "\tnumwait desc,\n" +
             "\ts_name\n" +
             "LIMIT 100;";
-    public static final java.lang.String sql22 = "explain analyze select\n" +
+    public static final java.lang.String sql22 = " select\n" +
             "\tcntrycode,\n" +
             "\tcount(*) as numcust,\n" +
             "\tsum(c_acctbal) as totacctbal\n" +
@@ -520,36 +518,4 @@ public class Utilities {
             "order by\n" +
             "\tcntrycode\n" +
             "LIMIT 1;";
-    public static final double DB_SCALE_FACTOR = 1;
-    public static final String[] type1 = new String[]{"STANDARD","SMALL","MEDIUM","LARGE","ECONOMY","PROMO"};
-    public static final String[] type2 = new String[]{"ANODIZED","BURNISHED","PLATED","POLISHED","BRUSHED"};//for q2
-    public static final String[] type3 = new String[]{"TIN","NICKEL","BRASS","STEEL","COPPER"};//for q2
-    public static final String[] region2 = new String[]{"AFRICA","AMERICA","ASIA","EUROPE","MIDDLE EAST"};//for q3
-    public static final String[] segments = new String[]{"AUTOMOBILE","BUILDING","FURNITURE","MACHINERY","HOUSEHOLD"};
-    public static final double[] seq_q6 = new double[]{0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09};
-    public static final Map<String, Integer> nation_region = new HashMap<String,Integer>(){{
-        put("ALGERIA",0);put("EGYPT",4);put("INDIA",2);
-        put("ARGENTINA",1);put("ETHIOPIA",0);put("INDONESIA",2);
-        put("BRAZIL",1);put("FRANCE",3);put("IRAN",4);
-        put("CANADA",1);put("GERMANY",3);put("IRAQ",4);
-        put("JAPAN",2);put("JORDAN",4);put("KENYA",0);
-        put("MOROCCO",0);put("MOZAMBIQUE",0);put("PERU",1);
-        put("CHINA",2);put("ROMANIA",3);put("SAUDI ARABIA",4);
-        put("VIETNAM",2);put("RUSSIA",3);put("UNITED KINGDOM",3);
-        put("UNITED STATES",1);
-    }};
-    public static final List<String> keysAsArray = new ArrayList<String>(nation_region.keySet());
-    public static final String[] colors = new String[]{"almond", "antique", "aquamarine", "azure", "beige", "bisque", "black", "blanched",
-            "blue", "blush", "brown", "burlywood", "burnished", "chartreuse", "chiffon", "chocolate", "coral", "cornflower",
-            "cornsilk", "cream", "cyan", "dark", "deep", "dim", "dodger", "drab", "firebrick", "floral", "forest",
-            "frosted", "gainsboro", "ghost", "goldenrod", "green", "grey", "honeydew", "hot", "indian", "ivory", "khaki", "lace", "lavender",
-            "lawn", "lemon", "light", "lime", "linen", "magenta", "maroon", "medium", "metallic", "midnight", "mint", "misty",
-            "moccasin", "navajo", "navy", "olive", "orange", "orchid", "pale", "papaya", "peach", "peru", "pink", "plum", "powder", "puff", "" +
-            "purple", "red", "rose", "rosy", "royal", "saddle", "salmon", "sandy", "seashell",
-            "sienna", "sky", "slate", "smoke", "snow", "spring", "steel", "tan", "thistle", "tomato", "turquoise", "violet", "wheat", "white", "yellow"};//for q12
-    public static final String[] modes = new String[]{"REG AIR","TRUCK","AIR","MAIL","FOB","RAIL","SHIP"};
-    public static final String[] words1 = new String[]{"special", "pending", "unusual", "express"};
-    public static final String[] words2 = new String[]{"packages", "requests", "accounts", "deposits"};
-    public static final String[] container_1 = new String[]{"SM", "LG", "MED","JUMBO","WRAP"};
-    public static final String[] container_2 = new String[]{"CASE", "BOX", "BAG","JAR","PKG","PACK","CAN","DRUM"};
 }
