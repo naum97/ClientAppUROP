@@ -216,7 +216,6 @@ public class Utilities {
 
     public PreparedStatement getPreparedStatement_1(PreparedStatement stmt1) throws SQLException {
 
-
         stmt1.setString(1,Integer.toString(rand.nextInt(61) + 60) + "day"); //range  = [60-120]
         return stmt1;
     }
@@ -276,7 +275,7 @@ public class Utilities {
             default: return null;
         }
     }
-    public  List<Integer> getRandomNonRepeatingList(int length, int max, int min) {
+    public static List<Integer> getRandomNonRepeatingList(int length, int max, int min) {
         List<Integer> sizes = new ArrayList<>();
         while(sizes.size() < length) {
             int x = rand.nextInt(max-min+1)+min;
