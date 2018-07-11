@@ -10,7 +10,6 @@ public class Person extends Thread {
     private final String querySelection;
     private final int numberOfIterations;
     private final Utilities generator = new Utilities();
-    private List<PreparedStatement> preparedStatementList = null;
 
     public Person(Connection connection, String querySelection, int numberOfIterations) {
         this.connection = connection;
@@ -20,46 +19,55 @@ public class Person extends Thread {
 
     public void run(){
         try{
+            /* Run full benchmark (all 22 queries in random order)
+               For a 'numberOfIterations' iterations
+             */
             if(querySelection.equals("all"))
             {
-                preparedStatementList = generator.getListOfAllPreparedStatements(connection);
-                for(int i = 1; i <= numberOfIterations; i++)
-                {
-                    int index = Utilities.rand.nextInt(preparedStatementList.size());
-                    generator.setParameters(index+1, preparedStatementList.get(index));
-                    ResultSet rs = preparedStatementList.get(index).executeQuery();
-
-                    while(rs.next())
-                    {
-                        //do nothing
-                    }
-
-                }
+                executeAllQueries();
+                connection.close();
                 return;
             }
+
+            /* Run a selected query for a 'numberOfIterations' iterations */
+
             PreparedStatement stmt = generator.prepareStatement(Integer.parseInt(querySelection), connection);
-            for(int i = 1; i <= numberOfIterations; i++)
+
+            for(int i = 0; i < numberOfIterations; i++)
             {
-                generator.setParameters(Integer.parseInt(querySelection), stmt);
-                ResultSet rs = stmt.executeQuery();
-
-                while (rs.next())
-                {
-                    System.out.println(rs.getString(1));
-                }
-
-                sleep(2000);
-
+                executeQuery(Integer.parseInt(querySelection), stmt);
             }
+
             stmt.close();
             connection.close();
-        }catch (InterruptedException e)
+
+        } catch (SQLException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    private void executeQuery(int choice, PreparedStatement preparedStatement) throws SQLException {
+
+            generator.setParameters(choice, preparedStatement);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            //check for empty ResultSet
+            if(rs.isBeforeFirst())
+            {
+                System.out.println("Success");
+            }
+
+       }
+    private void executeAllQueries() throws SQLException, IllegalAccessException {
+        List<PreparedStatement> preparedStatementList = generator.getListOfAllPreparedStatements(connection);
+        List<Integer> randomizer = Utilities.getRandomNonRepeatingList(22,22,1);
+
+        for(int i = 0; i < numberOfIterations; i++)
         {
-            System.out.println("Person was interrupted!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            executeQuery(randomizer.get(i), preparedStatementList.get(randomizer.get(i)-1));
+        }
+        for(PreparedStatement p : preparedStatementList)
+        {
+            p.close();
         }
     }
 }
