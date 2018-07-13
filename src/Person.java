@@ -11,7 +11,6 @@ public class Person extends Thread {
     private final String querySelection;
     private final int numberOfIterations;
     private final Utilities generator = new Utilities();
-    volatile Statement s;
 
     public Person(Connection connection, String querySelection, int numberOfIterations) {
         this.connection = connection;
@@ -22,7 +21,7 @@ public class Person extends Thread {
     public void run(){
         try{
             /* 
-		FIX this !!!! Run full benchmark (all 22 queries in random order)
+	            Run full benchmark (all 22 queries in random order)
                For a 'numberOfIterations' iterations
              */
             if(querySelection.equals("all"))
@@ -31,75 +30,73 @@ public class Person extends Thread {
                 connection.close();
                 return;
             }
-	   if(Integer.parseInt(querySelection) == 15)
-	{
-//THE PROBLEM IS WITH MULTIPLE THREADS CREATING THE SAME VIEW, POSSIBLE SOLUTION = MODIFY QUERY TO INITIALIZE DIFFERENT VIEW NAME EVERY TIME, ADD PARAMETER TO PREPARED STATEMENT
-		s = connection.createStatement();
 
-int year = Utilities.rand.nextInt(5)+1993; //for q4
-        	int month;
-        if(year == 1997){ month = Utilities.rand.nextInt(10) + 1; } else {month = Utilities.rand.nextInt(12) + 1;}
-	String sql;
-	String date = String.format("%d-%02d-01", year, month);
-	sql = Queries.sql15_view.replace("?", String.format("'%s'", date));
-	s.execute(sql);
-		
-		for(int i = 0; i < numberOfIterations; i++){
-		ResultSet rs = s.executeQuery(Queries.sql15);
-	while(rs.next()){System.out.println(rs.getString(1));}
-s.execute(Queries.sql15_drop);
-}
-
-		return;
-	}
             /* Run a selected query for a 'numberOfIterations' iterations */
 
-            PreparedStatement stmt =			generator.prepareStatement(Integer.parseInt(querySelection), connection);
+            PreparedStatement stmt = generator.prepareStatement(Integer.parseInt(querySelection), connection);
 
             for(int i = 0; i < numberOfIterations; i++)
             {
                 executeQuery(Integer.parseInt(querySelection), stmt);
             }
-
-            stmt.close();
-            connection.close();
+            try {
+                stmt.close();
+                connection.close();
+            } catch (NullPointerException e) //fix NullPointerException
+            {
+                //do nothing
+            }
 
         } catch (SQLException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
     private void executeQuery(int choice, PreparedStatement preparedStatement) throws SQLException {
-	    
+            /*This is needed due to concurrency issues with q15*/
+	        if(choice == 15){
+	            Utilities.getPreparedStatement_15(connection);
+	            return;
+            }
             generator.setParameters(choice, preparedStatement);
             ResultSet rs = preparedStatement.executeQuery();
-	    System.out.println(preparedStatement);
+	       // System.out.println(preparedStatement);
 
             //check for empty ResultSet
-	if(!rs.isBeforeFirst())
+	        if(!rs.isBeforeFirst())
             {
                 System.out.println("FAILURE");
             }
 
-	    while(rs.next()){
+	        while(rs.next()){
 			 System.out.println(rs.getString(1));
 			//System.out.println(rs.getDouble(2));
 			//System.out.println(rs.getDouble(3));
 }
-rs.close();
+            rs.close();
             
        }
     private void executeAllQueries() throws SQLException, IllegalAccessException {
-        List<PreparedStatement> preparedStatementList = generator.getListOfAllPreparedStatements(connection);
-        List<Integer> randomizer = Utilities.getRandomNonRepeatingList(22,22,1);
+            List<PreparedStatement> preparedStatementList = generator.getListOfAllPreparedStatements(connection);
+            List<Integer> randomizer = generator.getRandomNonRepeatingList(22,22,1); //values [1-22]
 
-        for(int i = 0; i < numberOfIterations; i++)
+         /*sql1 goes to list(0)
+        ...
+        sql 14 goes to list(13)
+        sql 16 goes to list (14)
+        sql 22 goes to list(20)
+         */
+
+        for(int i = 0; i < 22; i++)
         {
-            executeQuery(randomizer.get(i), preparedStatementList.get(randomizer.get(i)-1));
+            if(randomizer.get(i) < 15) {
+                executeQuery(randomizer.get(i), preparedStatementList.get(randomizer.get(i) - 1));
+            } else if(randomizer.get(i) > 15){
+                executeQuery(randomizer.get(i), preparedStatementList.get(randomizer.get(i) - 2));
+            } else Utilities.getPreparedStatement_15(connection);
         }
         for(PreparedStatement p : preparedStatementList)
         {
             p.close();
         }
     }
-public Connection getConnection(){return this.connection;}
 }

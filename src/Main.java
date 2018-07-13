@@ -10,15 +10,15 @@ import java.util.Random;
 
 public class Main {
     private static String QUERY_SELECTION = "all";
-    private static int NUMBER_OF_ITERATIONS =1;
-    private static int NUMBER_OF_THREADS = 1;
+    private static int NUMBER_OF_ITERATIONS =10;
+    private static int NUMBER_OF_THREADS = 3;
 
 
     public static void main(String args[] ) throws SQLException, ClassNotFoundException {
        if(args.length != 3) {
            System.out.println("Usage: java Main [querySelection] [numberOfIterations] [numberOfThreads] ");
            System.out.println();
-           System.out.println("If left blank: eg java Main, the full TPC-H benchmark (all 22 queries) will ,by default, run on 3 client threads with 10 iterations each");
+           System.out.println("If left blank: eg. java Main, the full TPC-H benchmark (all 22 queries) will ,by default, run on 3 client threads with 10 iterations each");
        } else {
            QUERY_SELECTION = args[0];
            NUMBER_OF_ITERATIONS = Integer.parseInt(args[1]);
@@ -28,7 +28,7 @@ public class Main {
         pool.setDatabaseName("nina");
         pool.setUser("postgres");
 
-        Person[] person = new Person[NUMBER_OF_THREADS];
+       Person[] person = new Person[NUMBER_OF_THREADS];
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
             Connection conn = pool.getConnection();
             person[i] = new Person(conn, QUERY_SELECTION, NUMBER_OF_ITERATIONS);
@@ -38,4 +38,5 @@ public class Main {
             person[i].start();
         }
     }
+
 }
