@@ -1,10 +1,10 @@
 
 public class Queries {
     public static final String sql1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - ?::INTERVAL group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus LIMIT 1;";
-    public static final String sql2 = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = ? and p_type like ? and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and ps_supplycost = ( select min(ps_supplycost) from	partsupp,supplier,nation,region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE') order by s_acctbal desc, n_name, s_name, p_partkey LIMIT 100;";
+    public static final String sql2 = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = ? and p_type like ? and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and ps_supplycost = ( select min(ps_supplycost) from partsupp,supplier,nation,region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ?) order by s_acctbal desc, n_name, s_name, p_partkey LIMIT 100;";
     public static final String sql3 = "select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate,o_shippriority from customer, orders, lineitem where c_mktsegment = ? and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < ? and l_shipdate > ? group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate LIMIT 10;";
     public static final String sql4 = " select o_orderpriority, count(*) as order_count from orders where o_orderdate >= ?::DATE and o_orderdate < ?::DATE + interval '3' month and exists (select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate) group by o_orderpriority order by o_orderpriority LIMIT 1;";
-    public static final String sql5 = " select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer,orders,lineitem,supplier,nation,region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and o_orderdate >= ? and o_orderdate < ?::DATE + interval '1' year group by n_name order by revenue desc LIMIT 1;";
+    public static final String sql5 = " select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer,orders,lineitem,supplier,nation,region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = ? and o_orderdate >= ?::DATE and o_orderdate < ?::DATE + interval '1' year group by n_name order by revenue desc LIMIT 1;";
     public static final String sql6 = " select\n" +
             "\tsum(l_extendedprice * l_discount) as revenue\n" +
             "from\n" +
@@ -93,7 +93,7 @@ public class Queries {
             "order by\n" +
             "\to_year\n" +
             "LIMIT 1;";
-    public static final String sql9 = " select\n" +
+    public static final String sql9 = "select\n" +
             "\tnation,\n" +
             "\to_year,\n" +
             "\tsum(amount) as sum_profit\n" +
@@ -144,7 +144,7 @@ public class Queries {
             "\tc_custkey = o_custkey\n" +
             "\tand l_orderkey = o_orderkey\n" +
             "\tand o_orderdate >= ? \n" +
-            "\tand o_orderdate < ? + interval '3' month\n" +
+            "\tand o_orderdate < ?::DATE + interval '3' month\n" +
             "\tand l_returnflag = 'R'\n" +
             "\tand c_nationkey = n_nationkey\n" +
             "group by\n" +
@@ -205,11 +205,11 @@ public class Queries {
             "\tlineitem\n" +
             "where\n" +
             "\to_orderkey = l_orderkey\n" +
-            "\tand l_shipmode in (?, '?)\n" +
+            "\tand l_shipmode in (?, ?)\n" +
             "\tand l_commitdate < l_receiptdate\n" +
             "\tand l_shipdate < l_commitdate\n" +
             "\tand l_receiptdate >= ? \n" +
-            "\tand l_receiptdate < ? + interval '1' year\n" +
+            "\tand l_receiptdate < ?::DATE + interval '1' year\n" +
             "group by\n" +
             "\tl_shipmode\n" +
             "order by\n" +
@@ -250,7 +250,7 @@ public class Queries {
             "\tand l_shipdate >= ?\n" +
             "\tand l_shipdate < ?::DATE + interval '1' month\n" +
             "LIMIT 1;";
-    public static final String sql15 = "create view revenue0 (supplier_no, total_revenue) as\n" +
+    public static String sql15_view = "create view revenue0 (supplier_no, total_revenue) as\n" +
             "\tselect\n" +
             "\t\tl_suppkey,\n" +
             "\t\tsum(l_extendedprice * (1 - l_discount))\n" +
@@ -260,9 +260,8 @@ public class Queries {
             "\t\tl_shipdate >= ?\n" +
             "\t\tand l_shipdate < ?::DATE + interval '3' month\n" +
             "\tgroup by\n" +
-            "\t\tl_suppkey;\n" +
-            "\n" +
-            "\n" +
+            "\t\tl_suppkey;\n";
+    public static final String sql15 = 
             " select\n" +
             "\ts_suppkey,\n" +
             "\ts_name,\n" +
@@ -282,7 +281,8 @@ public class Queries {
             "\t)\n" +
             "order by\n" +
             "\ts_suppkey\n" +
-            "LIMIT 1; drop view revenue0;";
+            "LIMIT 1;";
+    public static final String sql15_drop ="drop view revenue0;";
     public static final String sql16 = " select\n" +
             "\tp_brand,\n" +
             "\tp_type,\n" +
@@ -314,14 +314,14 @@ public class Queries {
             "\tp_type,\n" +
             "\tp_size\n" +
             "LIMIT 1;";
-    public static final String sql17 = " select sum(l_extendedprice) / 7.0 as avg_yearly from\n" +
+    public static final String sql17 =  "select sum(l_extendedprice) / 7.0 as avg_yearly from\n" +
             "\tlineitem,\n" +
             "\tpart,\n" +
-            "\t(SELECT l_partkey AS agg_partkey, 0.2 * avg(l_quantity) AS avg_quantity FROM lineitem GROUP BY l_partkey) part_agg\n" +
+            "\t(select l_partkey AS agg_partkey, 0.2 * avg(l_quantity) AS avg_quantity FROM lineitem GROUP BY l_partkey) part_agg\n" +
             "where\n" +
             "\tp_partkey = l_partkey\n" +
             "\tand agg_partkey = l_partkey\n" +
-            "\tand p_brand = ?\n" +
+            "\tand p_brand <> ?\n" +
             "\tand p_container = ?\n" +
             "\tand l_quantity < avg_quantity\n" +
             "LIMIT 1;";
@@ -366,7 +366,7 @@ public class Queries {
             "where\n" +
             "\t(\n" +
             "\t\tp_partkey = l_partkey\n" +
-            "\t\tand p_brand = ?\n" +
+            "\t\tand p_brand <> ?\n" +
             "\t\tand p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')\n" +
             "\t\tand l_quantity >= ? and l_quantity <= ? + 10\n" +
             "\t\tand p_size between 1 and 5\n" +
@@ -376,7 +376,7 @@ public class Queries {
             "\tor\n" +
             "\t(\n" +
             "\t\tp_partkey = l_partkey\n" +
-            "\t\tand p_brand = ?\n" +
+            "\t\tand p_brand <> ?\n" +
             "\t\tand p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')\n" +
             "\t\tand l_quantity >= ? and l_quantity <= ? + 10\n" +
             "\t\tand p_size between 1 and 10\n" +
@@ -386,7 +386,7 @@ public class Queries {
             "\tor\n" +
             "\t(\n" +
             "\t\tp_partkey = l_partkey\n" +
-            "\t\tand p_brand = ?\n" +
+            "\t\tand p_brand <> ?\n" +
             "\t\tand p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')\n" +
             "\t\tand l_quantity >= ? and l_quantity <= ? + 10\n" +
             "\t\tand p_size between 1 and 15\n" +
@@ -394,50 +394,43 @@ public class Queries {
             "\t\tand l_shipinstruct = 'DELIVER IN PERSON'\n" +
             "\t)\n" +
             "LIMIT 1; ";
-    public static final java.lang.String sql20 = " select\n" +
-            "\ts_name,\n" +
-            "\ts_address\n" +
-            "from\n" +
-            "\tsupplier,\n" +
-            "\tnation\n" +
-            "where\n" +
-            "\ts_suppkey in (\n" +
-            "\t\tselect\n" +
-            "\t\t\tps_suppkey\n" +
-            "\t\tfrom\n" +
-            "\t\t\tpartsupp,\n" +
-            "\t\t\t(\n" +
-            "\t\t\t\tselect\n" +
-            "\t\t\t\t\tl_partkey agg_partkey,\n" +
-            "\t\t\t\t\tl_suppkey agg_suppkey,\n" +
-            "\t\t\t\t\t0.5 * sum(l_quantity) AS agg_quantity\n" +
-            "\t\t\t\tfrom\n" +
-            "\t\t\t\t\tlineitem\n" +
-            "\t\t\t\twhere\n" +
-            "\t\t\t\t\tl_shipdate >= ?\n" +
-            "\t\t\t\t\tand l_shipdate < ?::DATE + interval '1' year\n" +
-            "\t\t\t\tgroup by\n" +
-            "\t\t\t\t\tl_partkey,\n" +
-            "\t\t\t\t\tl_suppkey\n" +
-            "\t\t\t) agg_lineitem\n" +
-            "\t\twhere\n" +
-            "\t\t\tagg_partkey = ps_partkey\n" +
-            "\t\t\tand agg_suppkey = ps_suppkey\n" +
-            "\t\t\tand ps_partkey in (\n" +
-            "\t\t\t\tselect\n" +
-            "\t\t\t\t\tp_partkey\n" +
-            "\t\t\t\tfrom\n" +
-            "\t\t\t\t\tpart\n" +
-            "\t\t\t\twhere\n" +
-            "\t\t\t\t\tp_name like ?\n" +
-            "\t\t\t)\n" +
-            "\t\t\tand ps_availqty > agg_quantity\n" +
-            "\t)\n" +
-            "\tand s_nationkey = n_nationkey\n" +
-            "\tand n_name = ?\n" +
-            "order by\n" +
-            "\ts_name\n" +
-            "LIMIT 1;";
+    public static final java.lang.String sql20 =  "select "
+            +     "s_name, "
+            +     "s_address "
+            + "from "
+            +     "supplier, "
+            +     "nation "
+            + "where "
+            +     "s_suppkey in ( "
+            +         "select "
+            +             "ps_suppkey "
+            +         "from "
+            +             "partsupp "
+            +         "where "
+            +             "ps_partkey in ( "
+            +                 "select "
+            +                     "p_partkey "
+            +                 "from "
+            +                     "part "
+            +                 "where "
+            +                     "p_name like ? "
+            +             ") "
+            +             "and ps_availqty > ( "
+            +                 "select "
+            +                     "0.5 * sum(l_quantity) "
+            +                 "from "
+            +                     "lineitem "
+            +                 "where "
+            +                     "l_partkey = ps_partkey "
+            +                     "and l_suppkey = ps_suppkey "
+            +                     "and l_shipdate >= ? "
+            +                     "and l_shipdate < ?::DATE + interval '1' year "
+            +             ") "
+            +     ") "
+            +     "and s_nationkey = n_nationkey "
+            +     "and n_name = ? "
+            + "order by "
++ "s_name;";
     public static final String sql21 = " select\n" +
             "\ts_name,\n" +
             "\tcount(*) as numwait\n" +
@@ -491,7 +484,7 @@ public class Queries {
             "\t\t\tcustomer\n" +
             "\t\twhere\n" +
             "\t\t\tsubstring(c_phone from 1 for 2) in\n" +
-            "\t\t\t\t('?', '?', '?', '?', '?', '?', '?')\n" +
+            "\t\t\t\t(?, ?, ?, ?, ?, ?, ?)\n" +
             "\t\t\tand c_acctbal > (\n" +
             "\t\t\t\tselect\n" +
             "\t\t\t\t\tavg(c_acctbal)\n" +
@@ -500,7 +493,7 @@ public class Queries {
             "\t\t\t\twhere\n" +
             "\t\t\t\t\tc_acctbal > 0.00\n" +
             "\t\t\t\t\tand substring(c_phone from 1 for 2) in\n" +
-            "\t\t\t\t\t\t('?', '?', '?', '?', '?', '?', '?')\n" +
+            "\t\t\t\t\t\t(?,?, ?, ?, ?, ?, ?)\n" +
             "\t\t\t)\n" +
             "\t\t\tand not exists (\n" +
             "\t\t\t\tselect\n" +

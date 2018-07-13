@@ -5,9 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.sql.ResultSet;
 
 
 public class Utilities {
@@ -26,8 +28,8 @@ public class Utilities {
         List<Integer> country_codes = getRandomNonRepeatingList(7,34,10);
         for(int i = 1; i <=7; i++)
         {
-            stmt22.setInt(i,country_codes.get(i));
-            stmt22.setInt(i+7, country_codes.get(i));
+            stmt22.setString(i,Integer.toString(country_codes.get(i-1)));
+            stmt22.setString(i+7, Integer.toString(country_codes.get(i-1)));
         }
         return stmt22;
     }
@@ -38,9 +40,11 @@ public class Utilities {
     }
 
     public PreparedStatement getPreparedStatement_20(PreparedStatement stmt20) throws SQLException {
-        stmt20.setDate(1, Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
-        stmt20.setDate(2,Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
-        stmt20.setString(3, Constants.colors[rand.nextInt(Constants.colors.length)]);
+	LocalDate date = LocalDate.of(rand.nextInt(5)+1993,1,1);
+	stmt20.setString(1, Constants.colors[rand.nextInt(Constants.colors.length)]+"%");
+        stmt20.setDate(2, Date.valueOf(date));
+        stmt20.setDate(3,Date.valueOf(date));
+        
         stmt20.setString(4, Constants.keysAsArray.get(rand.nextInt(Constants.keysAsArray.size())));
         return stmt20;
     }
@@ -67,8 +71,10 @@ public class Utilities {
     }
 
     public PreparedStatement getPreparedStatement_17(PreparedStatement stmt17) throws SQLException {
-        stmt17.setString(1,"BRAND#"+Integer.toString(rand.nextInt(5)+1)+Integer.toString(rand.nextInt(5)+1));
-        stmt17.setString(2, Constants.container_1[rand.nextInt(Constants.container_1.length)] + " " + Constants.container_2[rand.nextInt(Constants.container_2.length)]);
+        //stmt17.setString(1,"BRAND#"+Integer.toString(rand.nextInt(5)+1)+Integer.toString(rand.nextInt(5)+1));
+        //stmt17.setString(2, Constants.container_1[rand.nextInt(Constants.container_1.length)] + " " + Constants.container_2[rand.nextInt(Constants.container_2.length)]);
+	stmt17.setString(1,"BRAND#12");
+	stmt17.setString(2,"MED PACK");
         return stmt17;
     }
 
@@ -82,19 +88,22 @@ public class Utilities {
         }
         return stmt16;
     }
-
-    public PreparedStatement getPreparedStatement_15(PreparedStatement stmt15) throws SQLException {
-        int randomYear4 = rand.nextInt(5)+1993; //for q4
-        int randomMonth4;
-        if(randomYear4 == 1997){ randomMonth4 = rand.nextInt(10) + 1; } else {randomMonth4 = rand.nextInt(12) + 1;}
-        stmt15.setDate(1, Date.valueOf(LocalDate.of(randomYear4,randomMonth4,1)));
-        stmt15.setDate(2,Date.valueOf(LocalDate.of(randomYear4,randomMonth4,1)));
-        return stmt15;
+//FIX QUERIES ABOVE 15. CHECK THEM !!!!!
+    public void getPreparedStatement_15(Connection conn) throws SQLException {
+        
+	//ResultSet rs = stmt.executeQuery(Queries.sql15);
+	//while(rs.next()){System.out.println(rs.getString(1));}
+	
+	//stmt.execute(Queries.sql15_drop);
+        //rs.close();
+	//stmt.close();
+	
     }
 
     public PreparedStatement getPreparedStatement_14(PreparedStatement stmt14) throws SQLException {
-        stmt14.setDate(1, Date.valueOf(LocalDate.of(rand.nextInt(5)+1993, rand.nextInt(12)+1,1)));
-        stmt14.setDate(2,Date.valueOf(LocalDate.of(rand.nextInt(5)+1993, rand.nextInt(12)+1,1)));
+	LocalDate date = LocalDate.of(rand.nextInt(5)+1993,rand.nextInt(12)+1,1);
+        stmt14.setDate(1, Date.valueOf(date));
+        stmt14.setDate(2,Date.valueOf(date));
         return stmt14;
     }
 
@@ -106,11 +115,12 @@ public class Utilities {
     public PreparedStatement getPreparedStatement_12(PreparedStatement stmt12) throws SQLException {
         String mode1 = Constants.modes[rand.nextInt(Constants.modes.length)];
         String mode2 = Constants.modes[rand.nextInt(Constants.modes.length)];
+	LocalDate date = LocalDate.of(rand.nextInt(5)+1993,1,1);
         while(mode1.equals(mode2)) mode2 = Constants.modes[rand.nextInt(Constants.modes.length)]; //need to be different
         stmt12.setString(1,mode1);
         stmt12.setString(2,mode2);
-        stmt12.setDate(3, Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
-        stmt12.setDate(4,Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
+        stmt12.setDate(3, Date.valueOf(date));
+        stmt12.setDate(4,Date.valueOf(date));
         return stmt12;
     }
 
@@ -161,8 +171,9 @@ public class Utilities {
 
         int index_q6 = rand.nextInt(Constants.seq_q6.length);
         int quantity_q6 = rand.nextInt(2)+24;
-        stmt6.setDate(1, Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
-        stmt6.setDate(2,Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
+        LocalDate date = LocalDate.of(rand.nextInt(5)+1993,1,1);
+        stmt6.setDate(1, Date.valueOf(date));
+        stmt6.setDate(2,Date.valueOf(date));
         stmt6.setDouble(3, Constants.seq_q6[index_q6]);
         stmt6.setDouble(4, Constants.seq_q6[index_q6]);
         stmt6.setInt(5,quantity_q6);
@@ -172,8 +183,9 @@ public class Utilities {
     public PreparedStatement getPreparedStatement_5(PreparedStatement stmt5) throws SQLException {
 
         stmt5.setString(1, Constants.region2[rand.nextInt(5)]);
-        stmt5.setDate(2, Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
-        stmt5.setDate(3,Date.valueOf(LocalDate.of(rand.nextInt(5)+1993,1,1)));
+	LocalDate date = LocalDate.of(rand.nextInt(5)+1993,1,1);
+        stmt5.setDate(2, Date.valueOf(date));
+        stmt5.setDate(3,Date.valueOf(date));
         return stmt5;
     }
 
@@ -210,7 +222,9 @@ public class Utilities {
 
         stmt2.setInt(1,rand.nextInt(50) + 1); // for query 2 [1-50]
         stmt2.setString(2,"%"+ Constants.type3[rand.nextInt(Constants.type3.length)]);
-        stmt2.setString(3, Constants.region2[rand.nextInt(Constants.region2.length)]);
+	int index = rand.nextInt(Constants.region2.length);
+        stmt2.setString(3, Constants.region2[index]);
+	stmt2.setString(4, Constants.region2[index]);
         return stmt2;
     }
 
@@ -237,7 +251,6 @@ public class Utilities {
             case 12 : return c.prepareStatement(Queries.sql12);
             case 13:  return c.prepareStatement(Queries.sql13);
             case 14:  return c.prepareStatement(Queries.sql14);
-            case 15:  return c.prepareStatement(Queries.sql15);
             case 16:  return c.prepareStatement(Queries.sql16);
             case 17:  return c.prepareStatement(Queries.sql17);
             case 18:  return c.prepareStatement(Queries.sql18);
@@ -264,7 +277,6 @@ public class Utilities {
             case 12 :return getPreparedStatement_12(p);
             case 13: return getPreparedStatement_13(p);
             case 14: return getPreparedStatement_14(p);
-            case 15: return getPreparedStatement_15(p);
             case 16: return getPreparedStatement_16(p);
             case 17: return getPreparedStatement_17(p);
             case 18: return getPreparedStatement_18(p);
@@ -276,7 +288,7 @@ public class Utilities {
         }
     }
     public static List<Integer> getRandomNonRepeatingList(int length, int max, int min) {
-        List<Integer> sizes = new ArrayList<>();
+        List<Integer> sizes = new ArrayList<>(length);
         while(sizes.size() < length) {
             int x = rand.nextInt(max-min+1)+min;
             if(!sizes.contains(x))sizes.add(x);

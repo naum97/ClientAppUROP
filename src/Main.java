@@ -2,12 +2,16 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.util.Random;
 
 
 public class Main {
     private static String QUERY_SELECTION = "all";
-    private static int NUMBER_OF_ITERATIONS = 10;
-    private static int NUMBER_OF_THREADS = 3;
+    private static int NUMBER_OF_ITERATIONS =1;
+    private static int NUMBER_OF_THREADS = 1;
 
 
     public static void main(String args[] ) throws SQLException, ClassNotFoundException {
@@ -29,6 +33,7 @@ public class Main {
             Connection conn = pool.getConnection();
             person[i] = new Person(conn, QUERY_SELECTION, NUMBER_OF_ITERATIONS);
         }
+
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
             person[i].start();
         }
