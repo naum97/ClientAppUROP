@@ -19,7 +19,7 @@ public class Utilities {
         List<PreparedStatement> list = new ArrayList<>(22);
         for(Field f : Queries.class.getDeclaredFields())
         {
-            if(!(f.getName().equals("sql15_view") ||f.getName().equals("sql15") || f.getName().equals("sql15_drop")) )
+            if(!(f.getName().equals("sql15_view") || f.getName().equals("sql15") || f.getName().equals("sql15_drop")) )
             list.add(c.prepareStatement((String) f.get(null)));
         /*sql1 goes to list(0)
         ...

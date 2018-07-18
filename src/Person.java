@@ -26,7 +26,8 @@ public class Person extends Thread {
              */
             if(querySelection.equals("all"))
             {
-                executeAllQueries();
+		for(int i = 1; i <= numberOfIterations; i++){
+                executeAllQueries();}
                 connection.close();
                 return;
             }
