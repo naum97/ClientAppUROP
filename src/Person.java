@@ -1,9 +1,6 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.sql.Statement;
 
 
 public class Person extends Thread {
@@ -11,6 +8,8 @@ public class Person extends Thread {
     private final String querySelection;
     private final int numberOfIterations;
     private final Utilities generator = new Utilities();
+    private ArrayList<Long> array = new ArrayList<>();
+    private List<PreparedStatement> preparedStatementList;
 
     public Person(Connection connection, String querySelection, int numberOfIterations) {
         this.connection = connection;
@@ -25,9 +24,14 @@ public class Person extends Thread {
                For a 'numberOfIterations' iterations
              */
             if(querySelection.equals("all"))
-            {
-		for(int i = 1; i <= numberOfIterations; i++){
-                executeAllQueries();}
+            {   long startTime = System.currentTimeMillis();
+                preparedStatementList = generator.getListOfAllPreparedStatements(connection);
+		        for(int i = 1; i <= numberOfIterations; i++){
+                executeAllQueries();
+		        }
+		        long endTime = System.currentTimeMillis();
+                System.out.println("Total time: " + (float)(endTime - startTime)/1000 + " s");
+                closeStatements();
                 connection.close();
                 return;
             }
@@ -59,25 +63,20 @@ public class Person extends Thread {
 	            return;
             }
             generator.setParameters(choice, preparedStatement);
+	        //long start = System.currentTimeMillis();
             ResultSet rs = preparedStatement.executeQuery();
-	       // System.out.println(preparedStatement);
-
-            //check for empty ResultSet
+            //long finish = System.currentTimeMillis();
+	       // System.out.println("Elapsed time: "+(finish - start) +" milliseconds");
+           //check for empty ResultSet
 	        if(!rs.isBeforeFirst())
             {
                 System.out.println("FAILURE");
             }
 
-	        while(rs.next()){
-			 System.out.println(rs.getString(1));
-			//System.out.println(rs.getDouble(2));
-			//System.out.println(rs.getDouble(3));
-}
             rs.close();
             
        }
     private void executeAllQueries() throws SQLException, IllegalAccessException {
-            List<PreparedStatement> preparedStatementList = generator.getListOfAllPreparedStatements(connection);
             List<Integer> randomizer = generator.getRandomNonRepeatingList(22,22,1); //values [1-22]
 
          /*sql1 goes to list(0)
@@ -95,6 +94,9 @@ public class Person extends Thread {
                 executeQuery(randomizer.get(i), preparedStatementList.get(randomizer.get(i) - 2));
             } else Utilities.getPreparedStatement_15(connection);
         }
+    }
+
+    private void closeStatements() throws SQLException {
         for(PreparedStatement p : preparedStatementList)
         {
             p.close();

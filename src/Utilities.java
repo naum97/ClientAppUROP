@@ -108,7 +108,7 @@ public class Utilities {
 
         return stmt16;
     }
-//FIX QUERIES ABOVE 15. CHECK THEM !!!!!
+
     public static synchronized void getPreparedStatement_15(Connection conn) throws SQLException {
         int year = Utilities.rand.nextInt(5)+1993; //for q4
         int month;
@@ -116,13 +116,13 @@ public class Utilities {
         String sql;
         String date = String.format("%d-%02d-01", year, month);
         sql = Queries.sql15_view.replace("?", String.format("'%s'", date));
+        //long startTime = System.currentTimeMillis();
         conn.createStatement().execute(sql);
         ResultSet rs = conn.createStatement().executeQuery(Queries.sql15);
-        while(rs.next()) {
-            //System.out.println(rs.getString(1));
-        }
         conn.createStatement().execute(Queries.sql15_drop);
-        System.out.println("query 15 executed");
+        //long endTime = System.currentTimeMillis();
+        //System.out.println("query 15 executed");
+        //System.out.println("Elapsed time: "+(endTime - startTime)+" ms");
 
     }
 
