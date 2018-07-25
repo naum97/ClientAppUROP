@@ -26,7 +26,7 @@ public class Main {
         PGConnectionPoolDataSource pool = new PGConnectionPoolDataSource();
         pool.setDatabaseName("nina");
         pool.setUser("postgres");
-        pool.setServerName("192.168.10.21");
+  //      pool.setServerName("192.168.10.21");
 
        Person[] person = new Person[NUMBER_OF_THREADS];
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
@@ -50,7 +50,12 @@ public class Main {
                 //printWriter.printf("Thread number: %d\n", i + 1);
                 for(int x =0 ; x < person[i].getTimings().size(); x++)
                 {
-                    printWriter.printf("Run %d: Elapsed time: %f s\n", x+1, (float)person[i].getTimings().get(x)/1000);
+                    if(QUERY_SELECTION.equals("all"))
+                    {
+                        printWriter.printf("Run %d: Elapsed time: %f s\n", x+1, (float)person[i].getTimings().get(x)/1000);
+                    } else {
+                        printWriter.printf("Query %s: Elapsed time: %f s\n", QUERY_SELECTION, (float)person[i].getTimings().get(x)/1000);
+                    }
                 }
                 //printWriter.print("=========================================================\n");
             }

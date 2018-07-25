@@ -46,7 +46,10 @@ public class Person extends Thread {
 
             for(int i = 0; i < numberOfIterations; i++)
             {
+                long startTime = System.currentTimeMillis();
                 executeQuery(Integer.parseInt(querySelection), stmt);
+                long endTime = System.currentTimeMillis();
+                timings.add(endTime-startTime);
             }
             try {
                 stmt.close();
