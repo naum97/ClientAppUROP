@@ -8,8 +8,10 @@ public class Person extends Thread {
     private final String querySelection;
     private final int numberOfIterations;
     private final Utilities generator = new Utilities();
-    private ArrayList<Long> array = new ArrayList<>();
     private List<PreparedStatement> preparedStatementList;
+
+    private List<Long> timings = new ArrayList<>();
+
 
     public Person(Connection connection, String querySelection, int numberOfIterations) {
         this.connection = connection;
@@ -19,18 +21,20 @@ public class Person extends Thread {
 
     public void run(){
         try{
-            /* 
+            /*
 	            Run full benchmark (all 22 queries in random order)
                For a 'numberOfIterations' iterations
              */
             if(querySelection.equals("all"))
-            {   long startTime = System.currentTimeMillis();
+            {
                 preparedStatementList = generator.getListOfAllPreparedStatements(connection);
-		        for(int i = 1; i <= numberOfIterations; i++){
-                executeAllQueries();
+
+                for(int i = 1; i <= numberOfIterations; i++){
+                    long startTime = System.currentTimeMillis();
+                    executeAllQueries();
+                    long endTime = System.currentTimeMillis();
+                    timings.add((endTime-startTime));
 		        }
-		        long endTime = System.currentTimeMillis();
-                System.out.println("Total time: " + (float)(endTime - startTime)/1000 + " s");
                 closeStatements();
                 connection.close();
                 return;
@@ -56,6 +60,7 @@ public class Person extends Thread {
             e.printStackTrace();
         }
     }
+
     private void executeQuery(int choice, PreparedStatement preparedStatement) throws SQLException {
             /*This is needed due to concurrency issues with q15*/
 	        if(choice == 15){
@@ -63,21 +68,22 @@ public class Person extends Thread {
 	            return;
             }
             generator.setParameters(choice, preparedStatement);
-	        //long start = System.currentTimeMillis();
             ResultSet rs = preparedStatement.executeQuery();
-            //long finish = System.currentTimeMillis();
-	       // System.out.println("Elapsed time: "+(finish - start) +" milliseconds");
-           //check for empty ResultSet
+
+            //check for empty ResultSet
 	        if(!rs.isBeforeFirst())
             {
                 System.out.println("FAILURE");
             }
-
+            while(rs.next()){
+            }
             rs.close();
-            
+
        }
+
     private void executeAllQueries() throws SQLException, IllegalAccessException {
-            List<Integer> randomizer = generator.getRandomNonRepeatingList(22,22,1); //values [1-22]
+
+        List<Integer> randomizer = generator.getRandomNonRepeatingList(22,22,1); //values [1-22]
 
          /*sql1 goes to list(0)
         ...
@@ -85,7 +91,6 @@ public class Person extends Thread {
         sql 16 goes to list (14)
         sql 22 goes to list(20)
          */
-
         for(int i = 0; i < 22; i++)
         {
             if(randomizer.get(i) < 15) {
@@ -101,5 +106,8 @@ public class Person extends Thread {
         {
             p.close();
         }
+    }
+    public List<Long> getTimings() {
+        return timings;
     }
 }
