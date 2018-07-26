@@ -38,14 +38,12 @@ public class Utilities {
             stmt22.setString(i,Integer.toString(country_codes.get(i-1)));
             stmt22.setString(i+7, Integer.toString(country_codes.get(i-1)));
         }
-        System.out.println("query 22 executed");
 
         return stmt22;
     }
 
     public PreparedStatement getPreparedStatement_21(PreparedStatement stmt21) throws SQLException {
         stmt21.setString(1, Constants.keysAsArray.get(rand.nextInt(Constants.keysAsArray.size())));
-        System.out.println("query 21 executed");
 
         return stmt21;
     }
@@ -57,7 +55,6 @@ public class Utilities {
         stmt20.setDate(3,Date.valueOf(date));
         
         stmt20.setString(4, Constants.keysAsArray.get(rand.nextInt(Constants.keysAsArray.size())));
-        System.out.println("query 20 executed");
 
         return stmt20;
     }
@@ -75,14 +72,12 @@ public class Utilities {
         stmt19.setString(7,"BRAND#"+Integer.toString(rand.nextInt(5)+1)+Integer.toString(rand.nextInt(5)+1));
         stmt19.setInt(8,quantity3);
         stmt19.setInt(9,quantity3);
-        System.out.println("query 19 executed");
 
         return stmt19;
     }
 
     public PreparedStatement getPreparedStatement_18(PreparedStatement stmt18) throws SQLException {
         stmt18.setInt(1, rand.nextInt(4)+312);
-        System.out.println("query 18 executed");
 
         return stmt18;
     }
@@ -91,7 +86,6 @@ public class Utilities {
         stmt17.setString(1,"BRAND#"+Integer.toString(rand.nextInt(5)+1)+Integer.toString(rand.nextInt(5)+1));
         stmt17.setString(2, Constants.container_1[rand.nextInt(Constants.container_1.length)] + " " + Constants.container_2[rand.nextInt(Constants.container_2.length)]);
 
-        System.out.println("query 17 executed");
 
         return stmt17;
     }
@@ -104,7 +98,6 @@ public class Utilities {
         for(int i = 3; i <=10; i++) {
             stmt16.setInt(i, sizes.get(n)); n++;
         }
-        System.out.println("query 16 executed");
 
         return stmt16;
     }
@@ -121,7 +114,7 @@ public class Utilities {
         ResultSet rs = conn.createStatement().executeQuery(Queries.sql15);
         conn.createStatement().execute(Queries.sql15_drop);
         //long endTime = System.currentTimeMillis();
-        //System.out.println("query 15 executed");
+        // 15 executed");
         //System.out.println("Elapsed time: "+(endTime - startTime)+" ms");
 
     }
@@ -130,14 +123,12 @@ public class Utilities {
 	    LocalDate date = LocalDate.of(rand.nextInt(5)+1993,rand.nextInt(12)+1,1);
         stmt14.setDate(1, Date.valueOf(date));
         stmt14.setDate(2,Date.valueOf(date));
-        System.out.println("query 14 executed");
 
         return stmt14;
     }
 
     public PreparedStatement getPreparedStatement_13(PreparedStatement stmt13) throws SQLException {
         stmt13.setString(1, "%" + Constants.words1[rand.nextInt(Constants.words1.length)] + "%" + Constants.words2[rand.nextInt(Constants.words2.length)] + "%");
-        System.out.println("query 13 executed");
 
         return stmt13;
     }
@@ -151,7 +142,6 @@ public class Utilities {
         stmt12.setString(2,mode2);
         stmt12.setDate(3, Date.valueOf(date));
         stmt12.setDate(4,Date.valueOf(date));
-        System.out.println("query 12 executed");
 
         return stmt12;
     }
@@ -160,7 +150,6 @@ public class Utilities {
         stmt11.setString(1, Constants.keysAsArray.get(rand.nextInt(Constants.keysAsArray.size())));
         stmt11.setDouble(2, 0.0001 * Constants.DB_SCALE_FACTOR);
         stmt11.setString(3, Constants.keysAsArray.get(rand.nextInt(Constants.keysAsArray.size())));
-        System.out.println("query 11 executed");
 
         return stmt11;
     }
@@ -171,7 +160,6 @@ public class Utilities {
         if(randomYear10 == 1993) randomMonth10 = rand.nextInt(11)+2; else if(randomYear10 == 1995) randomMonth10 = 1; else randomMonth10 = rand.nextInt(12)+1;
         stmt10.setDate(1, Date.valueOf(LocalDate.of(randomYear10, randomMonth10, 1)));
         stmt10.setDate(2, Date.valueOf(LocalDate.of(randomYear10, randomMonth10, 1)));
-        System.out.println("query 10 executed");
 
         return stmt10;
     }
@@ -179,7 +167,6 @@ public class Utilities {
     public PreparedStatement getPreparedStatement_9(PreparedStatement stmt9) throws SQLException {
 
         stmt9.setString(1,"%"+ Constants.colors[rand.nextInt(Constants.colors.length)] +"%");
-        System.out.println("query 9 executed");
 
         return stmt9;
     }
@@ -191,7 +178,6 @@ public class Utilities {
         stmt8.setString(1, nation_8);
         stmt8.setString(2, region_8);
         stmt8.setString(3, x);
-        System.out.println("query 8 executed");
 
         return stmt8;
     }
@@ -204,7 +190,6 @@ public class Utilities {
         stmt7.setString(2,nation2_7);
         stmt7.setString(3,nation2_7);
         stmt7.setString(4,nation1_7);
-        System.out.println("query 7 executed");
 
         return stmt7;
     }
@@ -219,7 +204,6 @@ public class Utilities {
         stmt6.setDouble(3, Constants.seq_q6[index_q6]);
         stmt6.setDouble(4, Constants.seq_q6[index_q6]);
         stmt6.setInt(5,quantity_q6);
-        System.out.println("query 6 executed");
 
         return stmt6;
     }
@@ -230,7 +214,6 @@ public class Utilities {
 	    LocalDate date = LocalDate.of(rand.nextInt(5)+1993,1,1);
         stmt5.setDate(2, Date.valueOf(date));
         stmt5.setDate(3,Date.valueOf(date));
-        System.out.println("query 5 executed");
 
         return stmt5;
     }
@@ -246,7 +229,6 @@ public class Utilities {
 
         stmt4.setDate(1, newDate);
         stmt4.setDate(2, newDate);
-        System.out.println("query 4 executed");
 
         return stmt4;
     }
@@ -262,7 +244,6 @@ public class Utilities {
         stmt3.setString(1, Constants.segments[rand.nextInt(Constants.segments.length)]);
         stmt3.setDate(2, date);
         stmt3.setDate(3,date);
-        System.out.println("query 3 executed");
 
         return stmt3;
     }
@@ -275,7 +256,6 @@ public class Utilities {
 	    int index = rand.nextInt(Constants.region2.length);
         stmt2.setString(3, Constants.region2[index]);
 	    stmt2.setString(4, Constants.region2[index]);
-        System.out.println("query 2 executed");
 
         return stmt2;
     }
@@ -283,7 +263,6 @@ public class Utilities {
     public PreparedStatement getPreparedStatement_1(PreparedStatement stmt1) throws SQLException {
 
         stmt1.setString(1,Integer.toString(rand.nextInt(61) + 60) + "day"); //range  = [60-120]
-        System.out.println("query 1 executed");
         return stmt1;
     }
 

@@ -42,27 +42,17 @@ public class Main {
         }
 
 
-        try {
-            FileWriter fileWriter = new FileWriter("/home/naummk/output.txt");
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            for(int i = 0; i<person.length; i++)
+        for(int i = 0; i<person.length; i++)
+        {
+            for(int x =0 ; x < person[i].getTimings().size(); x++)
             {
-                //printWriter.printf("Thread number: %d\n", i + 1);
-                for(int x =0 ; x < person[i].getTimings().size(); x++)
+                if(QUERY_SELECTION.equals("all"))
                 {
-                    if(QUERY_SELECTION.equals("all"))
-                    {
-                        printWriter.printf("Run %d: Elapsed time: %f s\n", x+1, (float)person[i].getTimings().get(x)/1000);
-                    } else {
-                        printWriter.printf("Query %s: Elapsed time: %f s\n", QUERY_SELECTION, (float)person[i].getTimings().get(x)/1000);
-                    }
+                    System.out.printf("Run %d: Elapsed time: %f s\n", x+1, (float)person[i].getTimings().get(x)/1000);
+                } else {
+                    System.out.printf("Query %s: Elapsed time: %f s\n", QUERY_SELECTION, (float)person[i].getTimings().get(x)/1000);
                 }
-                //printWriter.print("=========================================================\n");
             }
-            printWriter.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
 
