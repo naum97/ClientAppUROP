@@ -1,0 +1,18 @@
+Limit  (cost=961329.53..961329.53 rows=1 width=16) (actual time=22495.590..22495.591 rows=1 loops=1)
+  ->  Sort  (cost=961329.53..961330.03 rows=200 width=16) (actual time=22495.589..22495.589 rows=1 loops=1)
+        Sort Key: (count(*)) DESC, (count(orders.o_orderkey)) DESC
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  HashAggregate  (cost=961326.53..961328.53 rows=200 width=16) (actual time=22495.510..22495.517 rows=45 loops=1)
+              Group Key: count(orders.o_orderkey)
+              ->  GroupAggregate  (cost=8.58..938826.53 rows=1500000 width=12) (actual time=0.475..22231.012 rows=1500000 loops=1)
+                    Group Key: customer.c_custkey
+                    ->  Merge Left Join  (cost=8.58..848834.03 rows=14998500 width=8) (actual time=0.068..20580.343 rows=15337448 loops=1)
+                          Merge Cond: (customer.c_custkey = orders.o_custkey)
+                          ->  Index Only Scan using customer_pkey on customer  (cost=0.43..62855.13 rows=1500000 width=4) (actual time=0.043..483.796 rows=1500000 loops=1)
+                                Heap Fetches: 1500000
+                          ->  Index Scan using idx_orders_custkey on orders  (cost=0.43..594747.65 rows=14998500 width=8) (actual time=0.021..18335.279 rows=14837428 loops=1)
+                                Filter: ((o_comment)::text !~~ '%pending%requests%'::text)
+                                Rows Removed by Filter: 162572
+Planning time: 2.090 ms
+Execution time: 22495.764 ms
+Query 13: Elapsed time: 22.518999 s
