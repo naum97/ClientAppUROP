@@ -1,0 +1,30 @@
+Limit  (cost=4835087.67..4835087.68 rows=1 width=32) (actual time=28897.821..28897.822 rows=1 loops=1)
+  ->  Aggregate  (cost=4835087.67..4835087.68 rows=1 width=32) (actual time=28897.820..28897.820 rows=1 loops=1)
+        ->  Merge Join  (cost=2284819.20..4833841.28 rows=498555 width=8) (actual time=5835.836..28875.032 rows=134432 loops=1)
+              Merge Cond: (lineitem_1.l_partkey = part.p_partkey)
+              Join Filter: (lineitem.l_quantity < ((0.2 * avg(lineitem_1.l_quantity))))
+              Rows Removed by Join Filter: 1366175
+              ->  Finalize GroupAggregate  (cost=2283818.13..4334840.77 rows=2119202 width=36) (actual time=5826.604..27202.942 rows=1999930 loops=1)
+                    Group Key: lineitem_1.l_partkey
+                    ->  Gather Merge  (cost=2283818.13..4191794.64 rows=14834414 width=36) (actual time=5826.543..18044.106 rows=15621733 loops=1)
+                          Workers Planned: 7
+                          Workers Launched: 7
+                          ->  Partial GroupAggregate  (cost=2282818.01..2373578.80 rows=2119202 width=36) (actual time=5705.604..10148.473 rows=1952776 loops=8)
+                                Group Key: lineitem_1.l_partkey
+                                ->  Sort  (cost=2282818.01..2304241.60 rows=8569436 width=9) (actual time=5705.577..7036.185 rows=7498226 loops=8)
+                                      Sort Key: lineitem_1.l_partkey
+                                      Sort Method: external merge  Disk: 133800kB
+                                      ->  Parallel Seq Scan on lineitem lineitem_1  (cost=0.00..1210236.36 rows=8569436 width=9) (actual time=0.054..1725.819 rows=7498256 loops=8)
+              ->  Materialize  (cost=1001.07..449865.20 rows=1411533 width=21) (actual time=9.115..1213.687 rows=1500607 loops=1)
+                    ->  Gather Merge  (cost=1001.07..446336.36 rows=1411533 width=21) (actual time=9.107..958.189 rows=1500607 loops=1)
+                          Workers Planned: 5
+                          Workers Launched: 5
+                          ->  Nested Loop  (cost=0.99..275352.69 rows=282307 width=21) (actual time=0.240..1978.455 rows=250101 loops=6)
+                                ->  Parallel Index Scan using part_pkey on part  (cost=0.43..62998.20 rows=9973 width=4) (actual time=0.119..223.354 rows=8327 loops=6)
+                                      Filter: ((p_brand <> 'BRAND#51'::bpchar) AND (p_container = 'JUMBO PKG'::bpchar))
+                                      Rows Removed by Filter: 325006
+                                ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.56..21.01 rows=28 width=17) (actual time=0.021..0.200 rows=30 loops=49964)
+                                      Index Cond: (l_partkey = part.p_partkey)
+Planning time: 2.550 ms
+Execution time: 29130.269 ms
+Query 17: Elapsed time: 29.165001 s

@@ -1,0 +1,30 @@
+Sort  (cost=958796.49..958799.18 rows=1077 width=51) (actual time=32480.835..32480.963 rows=1833 loops=1)
+  Sort Key: supplier.s_name
+  Sort Method: quicksort  Memory: 262kB
+  ->  Nested Loop Semi Join  (cost=1.15..958742.25 rows=1077 width=51) (actual time=28.891..32477.031 rows=1833 loops=1)
+        ->  Nested Loop  (cost=0.29..5521.37 rows=4000 width=55) (actual time=0.177..115.098 rows=4023 loops=1)
+              Join Filter: (supplier.s_nationkey = nation.n_nationkey)
+              Rows Removed by Join Filter: 95977
+              ->  Index Scan using supplier_pkey on supplier  (cost=0.29..4020.05 rows=100000 width=59) (actual time=0.005..57.442 rows=100000 loops=1)
+              ->  Materialize  (cost=0.00..1.32 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=100000)
+                    ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4) (actual time=0.160..0.162 rows=1 loops=1)
+                          Filter: (n_name = 'IRAN'::bpchar)
+                          Rows Removed by Filter: 24
+        ->  Nested Loop  (cost=0.86..238.30 rows=1 width=4) (actual time=8.043..8.043 rows=0 loops=4023)
+              ->  Index Scan using idx_partsupp_suppkey on partsupp  (cost=0.43..226.16 rows=26 width=8) (actual time=0.358..7.689 rows=41 loops=4023)
+                    Index Cond: (ps_suppkey = supplier.s_suppkey)
+                    Filter: ((ps_availqty)::numeric > (SubPlan 1))
+                    Rows Removed by Filter: 19
+                    SubPlan 1
+                      ->  Aggregate  (cost=2.79..2.81 rows=1 width=32) (actual time=0.045..0.045 rows=1 loops=242070)
+                            ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.56..2.79 rows=1 width=5) (actual time=0.032..0.043 rows=1 loops=242070)
+                                  Index Cond: ((l_partkey = partsupp.ps_partkey) AND (l_suppkey = partsupp.ps_suppkey))
+                                  Filter: ((l_shipdate >= '1993-01-01'::date) AND (l_shipdate < '1994-01-01 00:00:00'::timestamp without time zone))
+                                  Rows Removed by Filter: 6
+              ->  Index Scan using part_pkey on part  (cost=0.43..0.47 rows=1 width=4) (actual time=0.008..0.008 rows=0 loops=164214)
+                    Index Cond: (p_partkey = partsupp.ps_partkey)
+                    Filter: ((p_name)::text ~~ 'violet%'::text)
+                    Rows Removed by Filter: 1
+Planning time: 9.620 ms
+Execution time: 32481.177 ms
+Query 20: Elapsed time: 32.520000 s

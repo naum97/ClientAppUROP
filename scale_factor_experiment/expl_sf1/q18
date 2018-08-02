@@ -1,0 +1,35 @@
+Limit  (cost=687045.77..687046.02 rows=100 width=71) (actual time=3499.136..3499.137 rows=9 loops=1)
+  ->  Sort  (cost=687045.77..690714.40 rows=1467451 width=71) (actual time=3499.134..3499.134 rows=9 loops=1)
+        Sort Key: orders.o_totalprice DESC, orders.o_orderdate
+        Sort Method: quicksort  Memory: 25kB
+        ->  Finalize GroupAggregate  (cost=420902.46..630960.85 rows=1467451 width=71) (actual time=3499.085..3499.096 rows=9 loops=1)
+              Group Key: customer.c_custkey, orders.o_orderkey
+              ->  Gather Merge  (cost=420902.46..598416.58 rows=1420113 width=71) (actual time=3499.064..3499.072 rows=9 loops=1)
+                    Workers Planned: 3
+                    Workers Launched: 3
+                    ->  Partial GroupAggregate  (cost=419902.42..430553.27 rows=473371 width=71) (actual time=3484.818..3484.821 rows=2 loops=4)
+                          Group Key: customer.c_custkey, orders.o_orderkey
+                          ->  Sort  (cost=419902.42..421085.85 rows=473371 width=44) (actual time=3484.800..3484.801 rows=16 loops=4)
+                                Sort Key: customer.c_custkey, orders.o_orderkey
+                                Sort Method: quicksort  Memory: 26kB
+                                ->  Nested Loop  (cost=222313.45..375281.02 rows=473371 width=44) (actual time=3440.447..3484.757 rows=16 loops=4)
+                                      ->  Hash Join  (cost=222313.02..260849.48 rows=118328 width=43) (actual time=3440.408..3484.692 rows=2 loops=4)
+                                            Hash Cond: (orders.o_custkey = customer.c_custkey)
+                                            ->  Hash Join  (cost=215353.02..252395.60 rows=118328 width=24) (actual time=3347.919..3392.198 rows=2 loops=4)
+                                                  Hash Cond: (orders.o_orderkey = lineitem_1.l_orderkey)
+                                                  ->  Parallel Seq Scan on orders  (cost=0.00..30933.71 rows=483871 width=20) (actual time=0.010..48.384 rows=375000 loops=4)
+                                                  ->  Hash  (cost=210767.82..210767.82 rows=366816 width=4) (actual time=3297.482..3297.482 rows=9 loops=4)
+                                                        Buckets: 524288  Batches: 1  Memory Usage: 4097kB
+                                                        ->  HashAggregate  (cost=202514.46..207099.66 rows=366816 width=4) (actual time=2663.848..3297.444 rows=9 loops=4)
+                                                              Group Key: lineitem_1.l_orderkey
+                                                              Filter: (sum(lineitem_1.l_quantity) > '315'::numeric)
+                                                              Rows Removed by Filter: 1499991
+                                                              ->  Seq Scan on lineitem lineitem_1  (cost=0.00..172510.64 rows=6000764 width=9) (actual time=0.020..644.611 rows=6001215 loops=4)
+                                            ->  Hash  (cost=5085.00..5085.00 rows=150000 width=23) (actual time=90.723..90.723 rows=150000 loops=4)
+                                                  Buckets: 262144  Batches: 1  Memory Usage: 10252kB
+                                                  ->  Seq Scan on customer  (cost=0.00..5085.00 rows=150000 width=23) (actual time=0.040..47.476 rows=150000 loops=4)
+                                      ->  Index Scan using idx_lineitem_orderkey on lineitem  (cost=0.43..0.81 rows=16 width=9) (actual time=0.020..0.022 rows=7 loops=9)
+                                            Index Cond: (l_orderkey = orders.o_orderkey)
+Planning time: 2.876 ms
+Execution time: 3553.675 ms
+Query 18: Elapsed time: 3.589000 s

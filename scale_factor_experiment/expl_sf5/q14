@@ -1,0 +1,17 @@
+Limit  (cost=340103.28..340103.29 rows=1 width=32) (actual time=776.811..776.812 rows=1 loops=1)
+  ->  Finalize Aggregate  (cost=340103.28..340103.29 rows=1 width=32) (actual time=776.809..776.809 rows=1 loops=1)
+        ->  Gather  (cost=340102.60..340103.21 rows=6 width=64) (actual time=776.744..776.771 rows=7 loops=1)
+              Workers Planned: 6
+              Workers Launched: 6
+              ->  Partial Aggregate  (cost=339102.60..339102.61 rows=1 width=64) (actual time=767.724..767.724 rows=1 loops=7)
+                    ->  Nested Loop  (cost=5663.88..337962.60 rows=65143 width=33) (actual time=181.248..717.347 rows=55058 loops=7)
+                          ->  Parallel Bitmap Heap Scan on lineitem  (cost=5663.46..304878.53 rows=65143 width=16) (actual time=181.147..421.120 rows=55058 loops=7)
+                                Recheck Cond: ((l_shipdate >= '1994-10-01'::date) AND (l_shipdate < '1994-11-01 00:00:00'::timestamp without time zone))
+                                Heap Blocks: exact=32193
+                                ->  Bitmap Index Scan on idx_lineitem_shipdate  (cost=0.00..5565.74 rows=390858 width=0) (actual time=136.361..136.361 rows=385404 loops=1)
+                                      Index Cond: ((l_shipdate >= '1994-10-01'::date) AND (l_shipdate < '1994-11-01 00:00:00'::timestamp without time zone))
+                          ->  Index Scan using part_pkey on part  (cost=0.42..0.51 rows=1 width=25) (actual time=0.005..0.005 rows=1 loops=385404)
+                                Index Cond: (p_partkey = lineitem.l_partkey)
+Planning time: 1.611 ms
+Execution time: 823.506 ms
+Query 14: Elapsed time: 0.848000 s

@@ -1,0 +1,25 @@
+Limit  (cost=151195.13..151195.16 rows=1 width=72) (actual time=4297.259..4297.260 rows=1 loops=1)
+  InitPlan 1 (returns $1)
+    ->  Finalize Aggregate  (cost=46701.01..46701.02 rows=1 width=32) (actual time=1724.827..1724.827 rows=1 loops=1)
+          ->  Gather  (cost=46700.58..46700.99 rows=4 width=32) (actual time=1724.790..1724.800 rows=5 loops=1)
+                Workers Planned: 4
+                Workers Launched: 4
+                ->  Partial Aggregate  (cost=45700.58..45700.59 rows=1 width=32) (actual time=1718.622..1718.622 rows=1 loops=5)
+                      ->  Parallel Seq Scan on customer customer_1  (cost=0.00..45670.75 rows=11930 width=6) (actual time=0.158..1693.393 rows=76444 loops=5)
+                            Filter: ((c_acctbal > 0.00) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{31,17,10,33,18,22,16}'::text[])))
+                            Rows Removed by Filter: 223556
+  ->  GroupAggregate  (cost=104494.11..104686.53 rows=6997 width=72) (actual time=4297.258..4297.258 rows=1 loops=1)
+        Group Key: ("substring"((customer.c_phone)::text, 1, 2))
+        ->  Sort  (cost=104494.11..104511.60 rows=6997 width=38) (actual time=4295.239..4295.664 rows=9065 loops=1)
+              Sort Key: ("substring"((customer.c_phone)::text, 1, 2))
+              Sort Method: quicksort  Memory: 4518kB
+              ->  Nested Loop Anti Join  (cost=0.43..104047.27 rows=6997 width=38) (actual time=1724.901..4269.584 rows=63606 loops=1)
+                    ->  Seq Scan on customer  (cost=0.00..75202.00 rows=17500 width=26) (actual time=1724.867..2684.277 rows=190996 loops=1)
+                          Filter: ((c_acctbal > $1) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{31,17,10,33,18,22,16}'::text[])))
+                          Rows Removed by Filter: 1309004
+                    ->  Index Only Scan using idx_orders_custkey on orders  (cost=0.43..13.55 rows=17 width=4) (actual time=0.008..0.008 rows=1 loops=190996)
+                          Index Cond: (o_custkey = customer.c_custkey)
+                          Heap Fetches: 127390
+Planning time: 2.435 ms
+Execution time: 4297.784 ms
+Query 22: Elapsed time: 4.322000 s

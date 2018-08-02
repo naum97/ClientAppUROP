@@ -1,0 +1,20 @@
+Limit  (cost=1382294.21..1382408.82 rows=1 width=27) (actual time=2608.312..2608.313 rows=1 loops=1)
+  ->  Finalize GroupAggregate  (cost=1382294.21..1383096.52 rows=7 width=27) (actual time=2608.310..2608.310 rows=1 loops=1)
+        Group Key: lineitem.l_shipmode
+        ->  Gather Merge  (cost=1382294.21..1383096.08 rows=49 width=27) (actual time=2595.641..2608.297 rows=9 loops=1)
+              Workers Planned: 7
+              Workers Launched: 7
+              ->  Partial GroupAggregate  (cost=1381294.09..1382089.96 rows=7 width=27) (actual time=2576.433..2583.487 rows=2 loops=8)
+                    Group Key: lineitem.l_shipmode
+                    ->  Sort  (cost=1381294.09..1381393.56 rows=39790 width=27) (actual time=2569.182..2571.289 rows=39060 loops=8)
+                          Sort Key: lineitem.l_shipmode
+                          Sort Method: quicksort  Memory: 4687kB
+                          ->  Nested Loop  (cost=0.43..1378254.11 rows=39790 width=27) (actual time=0.356..2555.914 rows=39060 loops=8)
+                                ->  Parallel Seq Scan on lineitem  (cost=0.00..1317354.31 rows=39790 width=15) (actual time=0.256..2265.387 rows=39060 loops=8)
+                                      Filter: ((l_shipmode = ANY ('{"REG AIR",TRUCK}'::bpchar[])) AND (l_commitdate < l_receiptdate) AND (l_shipdate < l_commitdate) AND (l_receiptdate >= '1995-01-01'::date) AND (l_receiptdate < '1996-01-01 00:00:00'::timestamp without time zone))
+                                      Rows Removed by Filter: 7459197
+                                ->  Index Scan using orders_pkey on orders  (cost=0.43..1.53 rows=1 width=20) (actual time=0.007..0.007 rows=1 loops=312477)
+                                      Index Cond: (o_orderkey = lineitem.l_orderkey)
+Planning time: 2.153 ms
+Execution time: 2754.549 ms
+Query 12: Elapsed time: 2.782000 s
