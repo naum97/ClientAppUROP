@@ -1,0 +1,49 @@
+Limit  (cost=41419.65..41419.66 rows=1 width=270) (actual time=452.603..452.612 rows=100 loops=1)
+  ->  Sort  (cost=41419.65..41419.66 rows=1 width=270) (actual time=452.601..452.606 rows=100 loops=1)
+        Sort Key: supplier.s_acctbal DESC, nation.n_name, supplier.s_name, part.p_partkey
+        Sort Method: top-N heapsort  Memory: 69kB
+        ->  Merge Join  (cost=24516.95..41419.64 rows=1 width=270) (actual time=380.572..452.171 rows=448 loops=1)
+              Merge Cond: (part.p_partkey = partsupp.ps_partkey)
+              Join Filter: (partsupp.ps_supplycost = (SubPlan 1))
+              Rows Removed by Join Filter: 162
+              ->  Gather Merge  (cost=1000.44..8045.64 rows=797 width=30) (actual time=6.427..6.887 rows=769 loops=1)
+                    Workers Planned: 2
+                    Workers Launched: 2
+                    ->  Parallel Index Scan using part_pkey on part  (cost=0.42..6953.62 rows=332 width=30) (actual time=0.236..53.514 rows=256 loops=3)
+                          Filter: (((p_type)::text ~~ '%STEEL'::text) AND (p_size = 25))
+                          Rows Removed by Filter: 66410
+              ->  Sort  (cost=23516.50..23916.50 rows=160000 width=250) (actual time=374.044..394.514 rows=160077 loops=1)
+                    Sort Key: partsupp.ps_partkey
+                    Sort Method: quicksort  Memory: 48708kB
+                    ->  Nested Loop  (cost=0.71..9686.33 rows=160000 width=250) (actual time=0.171..287.798 rows=160240 loops=1)
+                          ->  Nested Loop  (cost=0.29..114.02 rows=2000 width=244) (actual time=0.130..3.440 rows=2003 loops=1)
+                                ->  Nested Loop  (cost=0.00..2.62 rows=5 width=108) (actual time=0.062..0.076 rows=5 loops=1)
+                                      Join Filter: (nation.n_regionkey = region.r_regionkey)
+                                      Rows Removed by Join Filter: 20
+                                      ->  Seq Scan on region  (cost=0.00..1.06 rows=1 width=4) (actual time=0.033..0.035 rows=1 loops=1)
+                                            Filter: (r_name = 'ASIA'::bpchar)
+                                            Rows Removed by Filter: 4
+                                      ->  Seq Scan on nation  (cost=0.00..1.25 rows=25 width=112) (actual time=0.023..0.028 rows=25 loops=1)
+                                ->  Index Scan using idx_supplier_nation_key on supplier  (cost=0.29..18.28 rows=400 width=144) (actual time=0.021..0.560 rows=401 loops=5)
+                                      Index Cond: (s_nationkey = nation.n_nationkey)
+                          ->  Index Scan using idx_partsupp_suppkey on partsupp  (cost=0.42..3.99 rows=80 width=14) (actual time=0.009..0.130 rows=80 loops=2003)
+                                Index Cond: (ps_suppkey = supplier.s_suppkey)
+              SubPlan 1
+                ->  Aggregate  (cost=14.44..14.45 rows=1 width=32) (actual time=0.022..0.022 rows=1 loops=610)
+                      ->  Nested Loop  (cost=0.85..14.44 rows=1 width=6) (actual time=0.014..0.021 rows=2 loops=610)
+                            Join Filter: (nation_1.n_regionkey = region_1.r_regionkey)
+                            Rows Removed by Join Filter: 2
+                            ->  Seq Scan on region region_1  (cost=0.00..1.06 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=610)
+                                  Filter: (r_name = 'ASIA'::bpchar)
+                                  Rows Removed by Filter: 4
+                            ->  Nested Loop  (cost=0.85..13.33 rows=4 width=10) (actual time=0.010..0.019 rows=4 loops=610)
+                                  ->  Nested Loop  (cost=0.71..12.71 rows=4 width=10) (actual time=0.009..0.015 rows=4 loops=610)
+                                        ->  Index Scan using idx_partsupp_partkey on partsupp partsupp_1  (cost=0.42..2.70 rows=4 width=10) (actual time=0.007..0.008 rows=4 loops=610)
+                                              Index Cond: (part.p_partkey = ps_partkey)
+                                        ->  Index Scan using supplier_pkey on supplier supplier_1  (cost=0.29..2.50 rows=1 width=8) (actual time=0.001..0.001 rows=1 loops=2440)
+                                              Index Cond: (s_suppkey = partsupp_1.ps_suppkey)
+                                  ->  Index Scan using nation_pkey on nation nation_1  (cost=0.14..0.16 rows=1 width=8) (actual time=0.001..0.001 rows=1 loops=2440)
+                                        Index Cond: (n_nationkey = supplier_1.s_nationkey)
+Planning time: 4.781 ms
+Execution time: 454.590 ms
+Query 2: Elapsed time: 0.484000 s

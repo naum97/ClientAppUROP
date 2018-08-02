@@ -1,0 +1,46 @@
+Limit  (cost=1920458.02..1920458.02 rows=1 width=34) (actual time=6462.315..6462.324 rows=100 loops=1)
+  ->  Sort  (cost=1920458.02..1920458.02 rows=1 width=34) (actual time=6462.313..6462.317 rows=100 loops=1)
+        Sort Key: (count(*)) DESC, supplier.s_name
+        Sort Method: top-N heapsort  Memory: 38kB
+        ->  GroupAggregate  (cost=1920457.99..1920458.01 rows=1 width=34) (actual time=6452.909..6461.147 rows=3924 loops=1)
+              Group Key: supplier.s_name
+              ->  Sort  (cost=1920457.99..1920457.99 rows=1 width=26) (actual time=6452.886..6455.667 rows=38542 loops=1)
+                    Sort Key: supplier.s_name
+                    Sort Method: quicksort  Memory: 4548kB
+                    ->  Nested Loop Anti Join  (cost=3295.80..1920457.98 rows=1 width=26) (actual time=26.519..6241.449 rows=38542 loops=1)
+                          ->  Gather  (cost=3295.24..1920450.68 rows=1 width=34) (actual time=25.720..3105.597 rows=692746 loops=1)
+                                Workers Planned: 7
+                                Workers Launched: 7
+                                ->  Nested Loop Semi Join  (cost=2295.24..1919450.58 rows=1 width=34) (actual time=23.569..5761.311 rows=86593 loops=8)
+                                      Join Filter: (l2.l_suppkey <> l1.l_suppkey)
+                                      Rows Removed by Join Filter: 22549
+                                      ->  Nested Loop  (cost=2294.67..1477588.52 rows=56147 width=38) (actual time=23.537..4948.122 rows=89860 loops=8)
+                                            ->  Hash Join  (cost=2294.24..1245808.57 rows=114259 width=34) (actual time=23.449..3276.965 rows=186195 loops=8)
+                                                  Hash Cond: (l1.l_suppkey = supplier.s_suppkey)
+                                                  ->  Parallel Seq Scan on lineitem l1  (cost=0.00..1231659.95 rows=2856479 width=8) (actual time=0.036..2443.447 rows=4741168 loops=8)
+                                                        Filter: (l_receiptdate > l_commitdate)
+                                                        Rows Removed by Filter: 2757088
+                                                  ->  Hash  (cost=2244.24..2244.24 rows=4000 width=30) (actual time=23.148..23.148 rows=3924 loops=8)
+                                                        Buckets: 4096  Batches: 1  Memory Usage: 278kB
+                                                        ->  Nested Loop  (cost=44.49..2244.24 rows=4000 width=30) (actual time=1.862..21.837 rows=3924 loops=8)
+                                                              ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4) (actual time=0.028..0.032 rows=1 loops=8)
+                                                                    Filter: (n_name = 'MOZAMBIQUE'::bpchar)
+                                                                    Rows Removed by Filter: 24
+                                                              ->  Bitmap Heap Scan on supplier  (cost=44.49..2202.92 rows=4000 width=34) (actual time=1.829..20.913 rows=3924 loops=8)
+                                                                    Recheck Cond: (s_nationkey = nation.n_nationkey)
+                                                                    Heap Blocks: exact=1854
+                                                                    ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..43.49 rows=4000 width=0) (actual time=1.303..1.303 rows=3924 loops=8)
+                                                                          Index Cond: (s_nationkey = nation.n_nationkey)
+                                            ->  Index Scan using orders_pkey on orders  (cost=0.43..2.03 rows=1 width=4) (actual time=0.009..0.009 rows=0 loops=1489558)
+                                                  Index Cond: (o_orderkey = l1.l_orderkey)
+                                                  Filter: (o_orderstatus = 'F'::bpchar)
+                                                  Rows Removed by Filter: 1
+                                      ->  Index Scan using idx_lineitem_orderkey on lineitem l2  (cost=0.56..6.16 rows=137 width=8) (actual time=0.008..0.008 rows=1 loops=718880)
+                                            Index Cond: (l_orderkey = orders.o_orderkey)
+                          ->  Index Scan using idx_lineitem_orderkey on lineitem l3  (cost=0.56..6.84 rows=46 width=8) (actual time=0.004..0.004 rows=1 loops=692746)
+                                Index Cond: (l_orderkey = l1.l_orderkey)
+                                Filter: ((l_receiptdate > l_commitdate) AND (l_suppkey <> l1.l_suppkey))
+                                Rows Removed by Filter: 1
+Planning time: 5.422 ms
+Execution time: 6462.959 ms
+Query 21: Elapsed time: 6.492000 s

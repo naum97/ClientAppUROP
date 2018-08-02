@@ -1,0 +1,48 @@
+Limit  (cost=1544968.47..1544969.31 rows=1 width=248) (actual time=4508.368..4508.368 rows=1 loops=1)
+  ->  Finalize GroupAggregate  (cost=1544968.47..1553438.54 rows=10020 width=248) (actual time=4508.366..4508.366 rows=1 loops=1)
+        Group Key: n1.n_name, n2.n_name, (date_part('year'::text, (lineitem.l_shipdate)::timestamp without time zone))
+        ->  Gather Merge  (cost=1544968.47..1552522.59 rows=59248 width=248) (actual time=4506.061..4508.341 rows=9 loops=1)
+              Workers Planned: 7
+              Workers Launched: 7
+              ->  Partial GroupAggregate  (cost=1543968.35..1544264.59 rows=8464 width=248) (actual time=4495.345..4498.840 rows=4 loops=8)
+                    Group Key: n1.n_name, n2.n_name, (date_part('year'::text, (lineitem.l_shipdate)::timestamp without time zone))
+                    ->  Sort  (cost=1543968.35..1543989.51 rows=8464 width=228) (actual time=4493.951..4494.360 rows=6564 loops=8)
+                          Sort Key: n1.n_name, n2.n_name, (date_part('year'::text, (lineitem.l_shipdate)::timestamp without time zone))
+                          Sort Method: quicksort  Memory: 1215kB
+                          ->  Hash Join  (cost=56986.11..1543416.19 rows=8464 width=228) (actual time=230.411..4486.406 rows=7252 loops=8)
+                                Hash Cond: (orders.o_custkey = customer.c_custkey)
+                                Join Filter: (((n1.n_name = 'MOZAMBIQUE'::bpchar) AND (n2.n_name = 'BRAZIL'::bpchar)) OR ((n1.n_name = 'BRAZIL'::bpchar) AND (n2.n_name = 'MOZAMBIQUE'::bpchar)))
+                                Rows Removed by Join Filter: 7212
+                                ->  Nested Loop  (cost=3479.48..1488779.12 rows=203387 width=124) (actual time=27.896..4178.935 rows=180510 loops=8)
+                                      ->  Hash Join  (cost=3479.05..1268130.24 rows=203387 width=124) (actual time=27.835..2551.964 rows=180510 loops=8)
+                                            Hash Cond: (lineitem.l_suppkey = supplier.s_suppkey)
+                                            ->  Parallel Seq Scan on lineitem  (cost=0.00..1253083.54 rows=2542341 width=24) (actual time=0.053..2022.321 rows=2278791 loops=8)
+                                                  Filter: ((l_shipdate >= '1995-01-01'::date) AND (l_shipdate <= '1996-12-31'::date))
+                                                  Rows Removed by Filter: 5219466
+                                            ->  Hash  (cost=3379.05..3379.05 rows=8000 width=108) (actual time=27.653..27.653 rows=7919 loops=8)
+                                                  Buckets: 8192  Batches: 1  Memory Usage: 544kB
+                                                  ->  Nested Loop  (cost=43.94..3379.05 rows=8000 width=108) (actual time=1.712..25.069 rows=7919 loops=8)
+                                                        ->  Seq Scan on nation n1  (cost=0.00..1.38 rows=2 width=108) (actual time=0.035..0.045 rows=2 loops=8)
+                                                              Filter: ((n_name = 'MOZAMBIQUE'::bpchar) OR (n_name = 'BRAZIL'::bpchar))
+                                                              Rows Removed by Filter: 23
+                                                        ->  Bitmap Heap Scan on supplier  (cost=43.94..1648.84 rows=4000 width=8) (actual time=1.541..11.636 rows=3960 loops=16)
+                                                              Recheck Cond: (s_nationkey = n1.n_nationkey)
+                                                              Heap Blocks: exact=3725
+                                                              ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..42.94 rows=4000 width=0) (actual time=1.067..1.067 rows=3960 loops=16)
+                                                                    Index Cond: (s_nationkey = n1.n_nationkey)
+                                      ->  Index Scan using orders_pkey on orders  (cost=0.43..1.08 rows=1 width=8) (actual time=0.009..0.009 rows=1 loops=1444078)
+                                            Index Cond: (o_orderkey = lineitem.l_orderkey)
+                                ->  Hash  (cost=52006.63..52006.63 rows=120000 width=108) (actual time=200.713..200.713 rows=119748 loops=8)
+                                      Buckets: 131072  Batches: 1  Memory Usage: 8275kB
+                                      ->  Nested Loop  (cost=640.33..52006.63 rows=120000 width=108) (actual time=22.472..173.140 rows=119748 loops=8)
+                                            ->  Seq Scan on nation n2  (cost=0.00..1.38 rows=2 width=108) (actual time=0.006..0.016 rows=2 loops=8)
+                                                  Filter: ((n_name = 'BRAZIL'::bpchar) OR (n_name = 'MOZAMBIQUE'::bpchar))
+                                                  Rows Removed by Filter: 23
+                                            ->  Bitmap Heap Scan on customer  (cost=640.33..25402.63 rows=60000 width=8) (actual time=18.105..78.269 rows=59874 loops=16)
+                                                  Recheck Cond: (c_nationkey = n2.n_nationkey)
+                                                  Heap Blocks: exact=58662
+                                                  ->  Bitmap Index Scan on idx_customer_nationkey  (cost=0.00..625.33 rows=60000 width=0) (actual time=11.368..11.368 rows=59874 loops=16)
+                                                        Index Cond: (c_nationkey = n2.n_nationkey)
+Planning time: 6.679 ms
+Execution time: 4682.004 ms
+Query 7: Elapsed time: 4.716000 s

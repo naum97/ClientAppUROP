@@ -1,0 +1,16 @@
+Limit  (cost=652958.98..652958.99 rows=1 width=32) (actual time=1758.076..1758.077 rows=1 loops=1)
+  ->  Finalize Aggregate  (cost=652958.98..652958.99 rows=1 width=32) (actual time=1758.074..1758.074 rows=1 loops=1)
+        ->  Gather  (cost=652958.33..652958.94 rows=6 width=32) (actual time=1757.986..1758.022 rows=7 loops=1)
+              Workers Planned: 6
+              Workers Launched: 6
+              ->  Partial Aggregate  (cost=651958.33..651958.34 rows=1 width=32) (actual time=1750.619..1750.619 rows=1 loops=7)
+                    ->  Parallel Bitmap Heap Scan on lineitem  (cost=79557.05..651949.24 rows=1818 width=12) (actual time=942.745..1713.923 rows=81707 loops=7)
+                          Recheck Cond: ((l_shipdate >= '1993-01-01'::date) AND (l_shipdate < '1994-01-01 00:00:00'::timestamp without time zone) AND (l_quantity < '24'::numeric))
+                          Filter: (((l_discount)::double precision >= '0.0100000000000000002'::double precision) AND ((l_discount)::double precision <= '0.0299999999999999989'::double precision))
+                          Rows Removed by Filter: 217882
+                          Heap Blocks: exact=69237
+                          ->  Bitmap Index Scan on idx_lineitem_shipdate  (cost=0.00..79554.33 rows=2181205 width=0) (actual time=802.358..802.358 rows=2097126 loops=1)
+                                Index Cond: ((l_shipdate >= '1993-01-01'::date) AND (l_shipdate < '1994-01-01 00:00:00'::timestamp without time zone) AND (l_quantity < '24'::numeric))
+Planning time: 0.871 ms
+Execution time: 1838.863 ms
+Query 6: Elapsed time: 1.866000 s

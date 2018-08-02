@@ -1,0 +1,29 @@
+Limit  (cost=433357.52..433357.52 rows=1 width=44) (actual time=4880.614..4880.615 rows=1 loops=1)
+  ->  Sort  (cost=433357.52..433746.09 rows=155427 width=44) (actual time=4880.610..4880.610 rows=1 loops=1)
+        Sort Key: (count(DISTINCT partsupp.ps_suppkey)) DESC, part.p_brand, part.p_type, part.p_size
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  GroupAggregate  (cost=423397.83..432580.39 rows=155427 width=44) (actual time=4372.498..4875.916 rows=28998 loops=1)
+              Group Key: part.p_brand, part.p_type, part.p_size
+              ->  Sort  (cost=423397.83..424923.49 rows=610263 width=40) (actual time=4372.426..4504.700 rows=1233461 loops=1)
+                    Sort Key: part.p_brand, part.p_type, part.p_size
+                    Sort Method: quicksort  Memory: 145517kB
+                    ->  Gather  (cost=99242.09..364754.39 rows=610263 width=40) (actual time=884.202..1597.187 rows=1233461 loops=1)
+                          Workers Planned: 5
+                          Workers Launched: 5
+                          ->  Hash Join  (cost=98242.09..302728.09 rows=122053 width=40) (actual time=847.655..1571.096 rows=205577 loops=6)
+                                Hash Cond: (partsupp.ps_partkey = part.p_partkey)
+                                ->  Parallel Seq Scan on partsupp  (cost=3466.03..197852.02 rows=800000 width=8) (actual time=54.085..562.267 rows=1332587 loops=6)
+                                      Filter: (NOT (hashed SubPlan 1))
+                                      Rows Removed by Filter: 747
+                                      SubPlan 1
+                                        ->  Seq Scan on supplier  (cost=0.00..3466.00 rows=10 width=4) (actual time=0.268..53.980 rows=56 loops=6)
+                                              Filter: ((s_comment)::text ~~ '%Customer%Complaints%'::text)
+                                              Rows Removed by Filter: 99944
+                                ->  Hash  (cost=90961.93..90961.93 rows=305131 width=40) (actual time=790.497..790.497 rows=308540 loops=6)
+                                      Buckets: 524288  Batches: 1  Memory Usage: 26432kB
+                                      ->  Seq Scan on part  (cost=0.00..90961.93 rows=305131 width=40) (actual time=0.027..695.863 rows=308540 loops=6)
+                                            Filter: ((p_brand <> 'BRAND#43'::bpchar) AND ((p_type)::text !~~ 'PROMO ANODIZED%'::text) AND (p_size = ANY ('{31,37,49,34,15,5,17,1}'::integer[])))
+                                            Rows Removed by Filter: 1691460
+Planning time: 1.239 ms
+Execution time: 4887.018 ms
+Query 16: Elapsed time: 4.911000 s

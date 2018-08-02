@@ -1,0 +1,25 @@
+Limit  (cost=16577.06..16577.08 rows=1 width=72) (actual time=212.984..212.985 rows=1 loops=1)
+  InitPlan 1 (returns $1)
+    ->  Finalize Aggregate  (cost=6230.84..6230.85 rows=1 width=32) (actual time=68.316..68.316 rows=1 loops=1)
+          ->  Gather  (cost=6230.62..6230.83 rows=2 width=32) (actual time=68.283..68.295 rows=3 loops=1)
+                Workers Planned: 2
+                Workers Launched: 2
+                ->  Partial Aggregate  (cost=5230.62..5230.63 rows=1 width=32) (actual time=64.243..64.243 rows=1 loops=3)
+                      ->  Parallel Seq Scan on customer customer_1  (cost=0.00..5225.62 rows=1996 width=6) (actual time=0.040..61.162 rows=12819 loops=3)
+                            Filter: ((c_acctbal > 0.00) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{16,29,28,22,27,19,18}'::text[])))
+                            Rows Removed by Filter: 37181
+  ->  GroupAggregate  (cost=10346.21..10367.05 rows=758 width=72) (actual time=212.982..212.982 rows=1 loops=1)
+        Group Key: ("substring"((customer.c_phone)::text, 1, 2))
+        ->  Sort  (cost=10346.21..10348.10 rows=758 width=38) (actual time=212.781..212.820 rows=879 loops=1)
+              Sort Key: ("substring"((customer.c_phone)::text, 1, 2))
+              Sort Method: quicksort  Memory: 494kB
+              ->  Nested Loop Anti Join  (cost=0.43..10309.95 rows=758 width=38) (actual time=68.392..210.440 rows=6436 loops=1)
+                    ->  Seq Scan on customer  (cost=0.00..7522.50 rows=1750 width=26) (actual time=68.339..141.669 rows=19229 loops=1)
+                          Filter: ((c_acctbal > $1) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{16,29,28,22,27,19,18}'::text[])))
+                          Rows Removed by Filter: 130771
+                    ->  Index Only Scan using idx_orders_custkey on orders  (cost=0.43..14.00 rows=18 width=4) (actual time=0.003..0.003 rows=1 loops=19229)
+                          Index Cond: (o_custkey = customer.c_custkey)
+                          Heap Fetches: 12793
+Planning time: 1.660 ms
+Execution time: 213.317 ms
+Query 22: Elapsed time: 0.235000 s

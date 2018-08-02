@@ -1,0 +1,40 @@
+Limit  (cost=50452.65..50452.65 rows=1 width=36) (actual time=2211.142..2211.142 rows=1 loops=1)
+  InitPlan 1 (returns $2)
+    ->  Finalize Aggregate  (cost=17150.20..17150.21 rows=1 width=8) (actual time=422.562..422.562 rows=1 loops=1)
+          ->  Gather  (cost=17150.08..17150.19 rows=1 width=32) (actual time=422.529..422.534 rows=2 loops=1)
+                Workers Planned: 1
+                Workers Launched: 1
+                ->  Partial Aggregate  (cost=16150.08..16150.09 rows=1 width=32) (actual time=418.750..418.750 rows=1 loops=2)
+                      ->  Nested Loop  (cost=1.76..14738.32 rows=188235 width=10) (actual time=0.263..368.904 rows=160920 loops=2)
+                            ->  Hash Join  (cost=1.32..3527.33 rows=2353 width=4) (actual time=0.193..14.777 rows=2012 loops=2)
+                                  Hash Cond: (supplier_1.s_nationkey = nation_1.n_nationkey)
+                                  ->  Parallel Seq Scan on supplier supplier_1  (cost=0.00..2804.24 rows=58824 width=8) (actual time=0.020..8.695 rows=50000 loops=2)
+                                  ->  Hash  (cost=1.31..1.31 rows=1 width=4) (actual time=0.030..0.030 rows=1 loops=2)
+                                        Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                        ->  Seq Scan on nation nation_1  (cost=0.00..1.31 rows=1 width=4) (actual time=0.019..0.022 rows=1 loops=2)
+                                              Filter: (n_name = 'IRAN'::bpchar)
+                                              Rows Removed by Filter: 24
+                            ->  Index Scan using idx_partsupp_suppkey on partsupp partsupp_1  (cost=0.43..3.97 rows=79 width=14) (actual time=0.012..0.167 rows=80 loops=4023)
+                                  Index Cond: (ps_suppkey = supplier_1.s_suppkey)
+  ->  Sort  (cost=33302.44..34102.44 rows=320000 width=36) (actual time=2211.140..2211.140 rows=1 loops=1)
+        Sort Key: (sum((partsupp.ps_supplycost * (partsupp.ps_availqty)::numeric))) DESC
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  HashAggregate  (cost=26902.44..31702.44 rows=320000 width=36) (actual time=2009.339..2209.588 rows=8921 loops=1)
+              Group Key: partsupp.ps_partkey
+              Filter: ((sum((partsupp.ps_supplycost * (partsupp.ps_availqty)::numeric)))::double precision > $2)
+              Rows Removed by Filter: 287313
+              ->  Nested Loop  (cost=44.92..21302.44 rows=320000 width=14) (actual time=1.839..1333.722 rows=314640 loops=1)
+                    ->  Nested Loop  (cost=44.49..2244.24 rows=4000 width=4) (actual time=1.783..19.994 rows=3933 loops=1)
+                          ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4) (actual time=0.027..0.034 rows=1 loops=1)
+                                Filter: (n_name = 'JORDAN'::bpchar)
+                                Rows Removed by Filter: 24
+                          ->  Bitmap Heap Scan on supplier  (cost=44.49..2202.92 rows=4000 width=8) (actual time=1.752..19.199 rows=3933 loops=1)
+                                Recheck Cond: (s_nationkey = nation.n_nationkey)
+                                Heap Blocks: exact=1844
+                                ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..43.49 rows=4000 width=0) (actual time=1.260..1.260 rows=3933 loops=1)
+                                      Index Cond: (s_nationkey = nation.n_nationkey)
+                    ->  Index Scan using idx_partsupp_suppkey on partsupp  (cost=0.43..3.97 rows=79 width=18) (actual time=0.014..0.324 rows=80 loops=3933)
+                          Index Cond: (ps_suppkey = supplier.s_suppkey)
+Planning time: 3.044 ms
+Execution time: 2225.857 ms
+Query 11: Elapsed time: 2.255000 s

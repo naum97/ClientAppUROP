@@ -1,0 +1,37 @@
+Limit  (cost=5723.80..5723.80 rows=1 width=36) (actual time=145.369..145.369 rows=1 loops=1)
+  InitPlan 1 (returns $2)
+    ->  Aggregate  (cost=2381.89..2381.91 rows=1 width=8) (actual time=42.646..42.646 rows=1 loops=1)
+          ->  Nested Loop  (cost=6.01..2141.89 rows=32000 width=10) (actual time=0.119..29.512 rows=32480 loops=1)
+                ->  Nested Loop  (cost=5.58..227.43 rows=400 width=4) (actual time=0.105..0.469 rows=406 loops=1)
+                      ->  Seq Scan on nation nation_1  (cost=0.00..1.31 rows=1 width=4) (actual time=0.008..0.009 rows=1 loops=1)
+                            Filter: (n_name = 'MOZAMBIQUE'::bpchar)
+                            Rows Removed by Filter: 24
+                      ->  Bitmap Heap Scan on supplier supplier_1  (cost=5.58..222.11 rows=400 width=8) (actual time=0.094..0.387 rows=406 loops=1)
+                            Recheck Cond: (s_nationkey = nation_1.n_nationkey)
+                            Heap Blocks: exact=186
+                            ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..5.49 rows=400 width=0) (actual time=0.064..0.064 rows=406 loops=1)
+                                  Index Cond: (s_nationkey = nation_1.n_nationkey)
+                ->  Index Scan using idx_partsupp_suppkey on partsupp partsupp_1  (cost=0.42..3.99 rows=80 width=14) (actual time=0.008..0.059 rows=80 loops=406)
+                      Index Cond: (ps_suppkey = supplier_1.s_suppkey)
+  ->  Sort  (cost=3341.89..3421.89 rows=32000 width=36) (actual time=145.367..145.367 rows=1 loops=1)
+        Sort Key: (sum((partsupp.ps_supplycost * (partsupp.ps_availqty)::numeric))) DESC
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  HashAggregate  (cost=2701.89..3181.89 rows=32000 width=36) (actual time=130.032..145.151 rows=822 loops=1)
+              Group Key: partsupp.ps_partkey
+              Filter: ((sum((partsupp.ps_supplycost * (partsupp.ps_availqty)::numeric)))::double precision > $2)
+              Rows Removed by Filter: 28633
+              ->  Nested Loop  (cost=6.01..2141.89 rows=32000 width=14) (actual time=0.268..54.680 rows=31200 loops=1)
+                    ->  Nested Loop  (cost=5.58..227.43 rows=400 width=4) (actual time=0.224..1.114 rows=390 loops=1)
+                          ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4) (actual time=0.025..0.028 rows=1 loops=1)
+                                Filter: (n_name = 'UNITED KINGDOM'::bpchar)
+                                Rows Removed by Filter: 24
+                          ->  Bitmap Heap Scan on supplier  (cost=5.58..222.11 rows=400 width=8) (actual time=0.192..0.975 rows=390 loops=1)
+                                Recheck Cond: (s_nationkey = nation.n_nationkey)
+                                Heap Blocks: exact=190
+                                ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..5.49 rows=400 width=0) (actual time=0.144..0.144 rows=390 loops=1)
+                                      Index Cond: (s_nationkey = nation.n_nationkey)
+                    ->  Index Scan using idx_partsupp_suppkey on partsupp  (cost=0.42..3.99 rows=80 width=18) (actual time=0.013..0.119 rows=80 loops=390)
+                          Index Cond: (ps_suppkey = supplier.s_suppkey)
+Planning time: 2.340 ms
+Execution time: 147.379 ms
+Query 11: Elapsed time: 0.172000 s

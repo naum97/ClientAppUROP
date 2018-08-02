@@ -1,0 +1,19 @@
+Limit  (cost=814527.61..814527.61 rows=1 width=16) (actual time=17597.065..17597.065 rows=1 loops=1)
+  ->  Sort  (cost=814527.61..814528.11 rows=200 width=16) (actual time=17597.063..17597.063 rows=1 loops=1)
+        Sort Key: (count(*)) DESC, (count(orders.o_orderkey)) DESC
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  HashAggregate  (cost=814524.61..814526.61 rows=200 width=16) (actual time=17596.991..17596.998 rows=45 loops=1)
+              Group Key: count(orders.o_orderkey)
+              ->  HashAggregate  (cost=777024.61..792024.61 rows=1500000 width=12) (actual time=17029.341..17381.054 rows=1500000 loops=1)
+                    Group Key: customer.c_custkey
+                    ->  Hash Right Join  (cost=69577.00..703539.31 rows=14697061 width=8) (actual time=621.731..11810.869 rows=15338554 loops=1)
+                          Hash Cond: (orders.o_custkey = customer.c_custkey)
+                          ->  Seq Scan on orders  (cost=0.00..448412.00 rows=14697061 width=8) (actual time=0.015..5719.791 rows=14838531 loops=1)
+                                Filter: ((o_comment)::text !~~ '%express%requests%'::text)
+                                Rows Removed by Filter: 161469
+                          ->  Hash  (cost=50827.00..50827.00 rows=1500000 width=4) (actual time=609.696..609.696 rows=1500000 loops=1)
+                                Buckets: 2097152  Batches: 1  Memory Usage: 69119kB
+                                ->  Seq Scan on customer  (cost=0.00..50827.00 rows=1500000 width=4) (actual time=0.017..325.958 rows=1500000 loops=1)
+Planning time: 1.826 ms
+Execution time: 17645.136 ms
+Query 13: Elapsed time: 17.670000 s

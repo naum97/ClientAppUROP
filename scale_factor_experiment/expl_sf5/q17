@@ -1,0 +1,25 @@
+Limit  (cost=1089478.26..1089478.28 rows=1 width=32) (actual time=27597.686..27597.687 rows=1 loops=1)
+  ->  Finalize Aggregate  (cost=1089478.26..1089478.28 rows=1 width=32) (actual time=27597.685..27597.685 rows=1 loops=1)
+        ->  Gather  (cost=1089477.94..1089478.25 rows=3 width=32) (actual time=27597.643..27597.649 rows=4 loops=1)
+              Workers Planned: 3
+              Workers Launched: 3
+              ->  Partial Aggregate  (cost=1088477.94..1088477.95 rows=1 width=32) (actual time=24732.559..24732.559 rows=1 loops=4)
+                    ->  Nested Loop  (cost=1047327.80..1088292.93 rows=74000 width=8) (actual time=24412.848..24730.364 rows=16734 loops=4)
+                          Join Filter: (part.p_partkey = lineitem.l_partkey)
+                          ->  Hash Join  (cost=1047327.24..1072748.13 rows=7401 width=40) (actual time=24412.741..24471.982 rows=6269 loops=4)
+                                Hash Cond: (part.p_partkey = lineitem_1.l_partkey)
+                                ->  Parallel Seq Scan on part  (cost=0.00..25320.71 rows=7935 width=4) (actual time=0.050..53.976 rows=6269 loops=4)
+                                      Filter: ((p_brand <> 'BRAND#15'::bpchar) AND (p_container = 'WRAP BOX'::bpchar))
+                                      Rows Removed by Filter: 243731
+                                ->  Hash  (cost=1035669.69..1035669.69 rows=932604 width=36) (actual time=24405.748..24405.748 rows=1000000 loops=4)
+                                      Buckets: 1048576  Batches: 1  Memory Usage: 56049kB
+                                      ->  HashAggregate  (cost=1012354.59..1026343.65 rows=932604 width=36) (actual time=23267.297..24181.742 rows=1000000 loops=4)
+                                            Group Key: lineitem_1.l_partkey
+                                            ->  Seq Scan on lineitem lineitem_1  (cost=0.00..862368.06 rows=29997306 width=9) (actual time=0.073..3817.457 rows=29999795 loops=4)
+                          ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.56..1.96 rows=11 width=17) (actual time=0.017..0.041 rows=3 loops=25077)
+                                Index Cond: (l_partkey = lineitem_1.l_partkey)
+                                Filter: (l_quantity < ((0.2 * avg(lineitem_1.l_quantity))))
+                                Rows Removed by Filter: 27
+Planning time: 2.056 ms
+Execution time: 27640.010 ms
+Query 17: Elapsed time: 27.664000 s

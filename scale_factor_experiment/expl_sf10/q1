@@ -1,0 +1,17 @@
+Limit  (cost=1635356.82..1635357.16 rows=1 width=236) (actual time=13808.466..13808.467 rows=1 loops=1)
+  ->  Finalize GroupAggregate  (cost=1635356.82..1635358.87 rows=6 width=236) (actual time=13808.464..13808.464 rows=1 loops=1)
+        Group Key: l_returnflag, l_linestatus
+        ->  Sort  (cost=1635356.82..1635356.92 rows=42 width=236) (actual time=13808.366..13808.368 rows=9 loops=1)
+              Sort Key: l_returnflag, l_linestatus
+              Sort Method: quicksort  Memory: 41kB
+              ->  Gather  (cost=1635351.32..1635355.69 rows=42 width=236) (actual time=13808.208..13808.288 rows=32 loops=1)
+                    Workers Planned: 7
+                    Workers Launched: 7
+                    ->  Partial HashAggregate  (cost=1634351.32..1634351.49 rows=6 width=236) (actual time=13800.738..13800.756 rows=4 loops=8)
+                          Group Key: l_returnflag, l_linestatus
+                          ->  Parallel Seq Scan on lineitem  (cost=0.00..1295930.72 rows=8460515 width=25) (actual time=0.049..3914.709 rows=7404092 loops=8)
+                                Filter: (l_shipdate <= ('1998-12-01'::date - ('85day'::cstring)::interval))
+                                Rows Removed by Filter: 94164
+Planning time: 8.657 ms
+Execution time: 13812.935 ms
+Query 1: Elapsed time: 13.854000 s

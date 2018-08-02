@@ -1,0 +1,36 @@
+Sort  (cost=336220.40..336221.74 rows=539 width=51) (actual time=1960.575..1960.646 rows=897 loops=1)
+  Sort Key: supplier.s_name
+  Sort Method: quicksort  Memory: 127kB
+  ->  Hash Semi Join  (cost=335078.93..336195.94 rows=539 width=51) (actual time=1953.401..1958.161 rows=897 loops=1)
+        Hash Cond: (supplier.s_suppkey = partsupp.ps_suppkey)
+        ->  Nested Loop  (cost=22.39..1123.44 rows=2000 width=55) (actual time=0.870..5.067 rows=1995 loops=1)
+              ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4) (actual time=0.021..0.027 rows=1 loops=1)
+                    Filter: (n_name = 'RUSSIA'::bpchar)
+                    Rows Removed by Filter: 24
+              ->  Bitmap Heap Scan on supplier  (cost=22.39..1102.13 rows=2000 width=59) (actual time=0.844..4.583 rows=1995 loops=1)
+                    Recheck Cond: (s_nationkey = nation.n_nationkey)
+                    Heap Blocks: exact=929
+                    ->  Bitmap Index Scan on idx_supplier_nation_key  (cost=0.00..21.89 rows=2000 width=0) (actual time=0.589..0.589 rows=1995 loops=1)
+                          Index Cond: (s_nationkey = nation.n_nationkey)
+        ->  Hash  (cost=334888.15..334888.15 rows=13471 width=4) (actual time=1952.355..1952.355 rows=29623 loops=1)
+              Buckets: 32768 (originally 16384)  Batches: 1 (originally 1)  Memory Usage: 1298kB
+              ->  Nested Loop  (cost=1000.43..334888.15 rows=13471 width=4) (actual time=0.680..1936.101 rows=29623 loops=1)
+                    ->  Gather  (cost=1000.00..26524.36 rows=10101 width=4) (actual time=0.365..26.648 rows=10921 loops=1)
+                          Workers Planned: 3
+                          Workers Launched: 3
+                          ->  Parallel Seq Scan on part  (cost=0.00..24514.26 rows=3258 width=4) (actual time=0.033..74.340 rows=2730 loops=4)
+                                Filter: ((p_name)::text ~~ 'turquoise%'::text)
+                                Rows Removed by Filter: 247270
+                    ->  Index Scan using idx_partsupp_partkey on partsupp  (cost=0.43..30.50 rows=3 width=8) (actual time=0.083..0.173 rows=3 loops=10921)
+                          Index Cond: (ps_partkey = part.p_partkey)
+                          Filter: ((ps_availqty)::numeric > (SubPlan 1))
+                          Rows Removed by Filter: 1
+                          SubPlan 1
+                            ->  Aggregate  (cost=2.79..2.80 rows=1 width=32) (actual time=0.038..0.038 rows=1 loops=43684)
+                                  ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.56..2.79 rows=1 width=5) (actual time=0.026..0.037 rows=1 loops=43684)
+                                        Index Cond: ((l_partkey = partsupp.ps_partkey) AND (l_suppkey = partsupp.ps_suppkey))
+                                        Filter: ((l_shipdate >= '1993-01-01'::date) AND (l_shipdate < '1994-01-01 00:00:00'::timestamp without time zone))
+                                        Rows Removed by Filter: 6
+Planning time: 2.769 ms
+Execution time: 1961.259 ms
+Query 20: Elapsed time: 1.993000 s

@@ -1,0 +1,36 @@
+Limit  (cost=1009627.86..1009627.86 rows=1 width=144) (actual time=7372.328..7372.329 rows=1 loops=1)
+  ->  Sort  (cost=1009627.86..1009778.23 rows=60150 width=144) (actual time=7372.327..7372.327 rows=1 loops=1)
+        Sort Key: nation.n_name, (date_part('year'::text, (orders.o_orderdate)::timestamp without time zone)) DESC
+        Sort Method: top-N heapsort  Memory: 25kB
+        ->  Finalize HashAggregate  (cost=1008274.48..1009327.11 rows=60150 width=144) (actual time=7369.533..7372.209 rows=175 loops=1)
+              Group Key: nation.n_name, (date_part('year'::text, (orders.o_orderdate)::timestamp without time zone))
+              ->  Gather  (cost=974139.36..1005266.98 rows=300750 width=144) (actual time=7364.964..7367.932 rows=1050 loops=1)
+                    Workers Planned: 5
+                    Workers Launched: 5
+                    ->  Partial HashAggregate  (cost=973139.36..974191.98 rows=60150 width=144) (actual time=7351.376..7353.332 rows=175 loops=6)
+                          Group Key: nation.n_name, date_part('year'::text, (orders.o_orderdate)::timestamp without time zone)
+                          ->  Nested Loop  (cost=5696.42..963132.21 rows=571837 width=135) (actual time=95.918..6779.740 rows=542512 loops=6)
+                                ->  Hash Join  (cost=5695.99..244864.49 rows=571837 width=131) (actual time=95.840..3596.182 rows=542512 loops=6)
+                                      Hash Cond: (lineitem.l_suppkey = supplier.s_suppkey)
+                                      ->  Nested Loop  (cost=1.42..231307.16 rows=571837 width=35) (actual time=0.331..3307.052 rows=542512 loops=6)
+                                            ->  Nested Loop  (cost=0.86..107333.14 rows=80808 width=18) (actual time=0.207..366.505 rows=72370 loops=6)
+                                                  ->  Parallel Index Scan using part_pkey on part  (cost=0.43..61998.20 rows=20202 width=4) (actual time=0.066..153.950 rows=18092 loops=6)
+                                                        Filter: ((p_name)::text ~~ '%aquamarine%'::text)
+                                                        Rows Removed by Filter: 315241
+                                                  ->  Index Scan using idx_partsupp_partkey on partsupp  (cost=0.43..2.06 rows=18 width=14) (actual time=0.009..0.011 rows=4 loops=108555)
+                                                        Index Cond: (ps_partkey = part.p_partkey)
+                                            ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.56..1.52 rows=1 width=29) (actual time=0.009..0.039 rows=7 loops=434220)
+                                                  Index Cond: ((l_partkey = partsupp.ps_partkey) AND (l_suppkey = partsupp.ps_suppkey))
+                                      ->  Hash  (cost=4444.56..4444.56 rows=100000 width=108) (actual time=94.516..94.516 rows=100000 loops=6)
+                                            Buckets: 131072  Batches: 1  Memory Usage: 7079kB
+                                            ->  Hash Join  (cost=1.56..4444.56 rows=100000 width=108) (actual time=0.091..65.058 rows=100000 loops=6)
+                                                  Hash Cond: (supplier.s_nationkey = nation.n_nationkey)
+                                                  ->  Seq Scan on supplier  (cost=0.00..3216.00 rows=100000 width=8) (actual time=0.017..29.021 rows=100000 loops=6)
+                                                  ->  Hash  (cost=1.25..1.25 rows=25 width=108) (actual time=0.054..0.054 rows=25 loops=6)
+                                                        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+                                                        ->  Seq Scan on nation  (cost=0.00..1.25 rows=25 width=108) (actual time=0.033..0.039 rows=25 loops=6)
+                                ->  Index Scan using orders_pkey on orders  (cost=0.43..1.25 rows=1 width=8) (actual time=0.005..0.005 rows=1 loops=3255074)
+                                      Index Cond: (o_orderkey = lineitem.l_orderkey)
+Planning time: 13.211 ms
+Execution time: 8214.620 ms
+Query 9: Elapsed time: 8.252000 s

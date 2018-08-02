@@ -1,0 +1,25 @@
+Limit  (cost=220175.32..220175.33 rows=1 width=32) (actual time=4405.076..4405.076 rows=1 loops=1)
+  ->  Finalize Aggregate  (cost=220175.32..220175.33 rows=1 width=32) (actual time=4405.075..4405.075 rows=1 loops=1)
+        ->  Gather  (cost=220175.10..220175.31 rows=2 width=32) (actual time=4405.047..4405.053 rows=3 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              ->  Partial Aggregate  (cost=219175.10..219175.11 rows=1 width=32) (actual time=4114.421..4114.421 rows=1 loops=3)
+                    ->  Nested Loop  (cost=209828.26..219123.62 rows=20590 width=8) (actual time=4034.734..4113.825 rows=4330 loops=3)
+                          Join Filter: (part.p_partkey = lineitem.l_partkey)
+                          ->  Hash Join  (cost=209827.82..215201.47 rows=2059 width=40) (actual time=4034.585..4050.278 rows=1671 loops=3)
+                                Hash Cond: (part.p_partkey = lineitem_1.l_partkey)
+                                ->  Parallel Seq Scan on part  (cost=0.00..5347.00 rows=2111 width=4) (actual time=0.032..14.796 rows=1671 loops=3)
+                                      Filter: ((p_brand <> 'BRAND#41'::bpchar) AND (p_container = 'JUMBO PKG'::bpchar))
+                                      Rows Removed by Filter: 64996
+                                ->  Hash  (cost=207390.04..207390.04 rows=195023 width=36) (actual time=4032.698..4032.698 rows=200000 loops=3)
+                                      Buckets: 262144  Batches: 1  Memory Usage: 11623kB
+                                      ->  HashAggregate  (cost=202514.46..205439.81 rows=195023 width=36) (actual time=3834.181..3996.693 rows=200000 loops=3)
+                                            Group Key: lineitem_1.l_partkey
+                                            ->  Seq Scan on lineitem lineitem_1  (cost=0.00..172510.64 rows=6000764 width=9) (actual time=0.018..699.847 rows=6001215 loops=3)
+                          ->  Index Scan using idx_lineitem_part_supp on lineitem  (cost=0.43..1.78 rows=10 width=17) (actual time=0.018..0.037 rows=3 loops=5013)
+                                Index Cond: (l_partkey = lineitem_1.l_partkey)
+                                Filter: (l_quantity < ((0.2 * avg(lineitem_1.l_quantity))))
+                                Rows Removed by Filter: 27
+Planning time: 1.916 ms
+Execution time: 4414.407 ms
+Query 17: Elapsed time: 4.439000 s

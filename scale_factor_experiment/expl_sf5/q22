@@ -1,0 +1,25 @@
+Limit  (cost=77190.70..77190.73 rows=1 width=72) (actual time=907.762..907.763 rows=1 loops=1)
+  InitPlan 1 (returns $1)
+    ->  Finalize Aggregate  (cost=25285.43..25285.44 rows=1 width=32) (actual time=182.666..182.666 rows=1 loops=1)
+          ->  Gather  (cost=25285.10..25285.41 rows=3 width=32) (actual time=182.589..182.649 rows=4 loops=1)
+                Workers Planned: 3
+                Workers Launched: 3
+                ->  Partial Aggregate  (cost=24285.10..24285.11 rows=1 width=32) (actual time=177.826..177.826 rows=1 loops=4)
+                      ->  Parallel Seq Scan on customer customer_1  (cost=0.00..24265.81 rows=7718 width=6) (actual time=0.087..170.010 rows=47790 loops=4)
+                            Filter: ((c_acctbal > 0.00) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{27,28,21,16,25,31,19}'::text[])))
+                            Rows Removed by Filter: 139710
+  ->  GroupAggregate  (cost=51905.26..52005.55 rows=3647 width=72) (actual time=907.761..907.761 rows=1 loops=1)
+        Group Key: ("substring"((customer.c_phone)::text, 1, 2))
+        ->  Sort  (cost=51905.26..51914.37 rows=3647 width=38) (actual time=906.776..906.976 rows=4400 loops=1)
+              Sort Key: ("substring"((customer.c_phone)::text, 1, 2))
+              Sort Method: quicksort  Memory: 2252kB
+              ->  Nested Loop Anti Join  (cost=0.43..51689.49 rows=3647 width=38) (actual time=182.789..895.274 rows=31654 loops=1)
+                    ->  Seq Scan on customer  (cost=0.00..37602.50 rows=8750 width=26) (actual time=182.683..509.751 rows=95377 loops=1)
+                          Filter: ((c_acctbal > $1) AND ("substring"((c_phone)::text, 1, 2) = ANY ('{27,28,21,16,25,31,19}'::text[])))
+                          Rows Removed by Filter: 654623
+                    ->  Index Only Scan using idx_orders_custkey on orders  (cost=0.43..13.55 rows=17 width=4) (actual time=0.004..0.004 rows=1 loops=95377)
+                          Index Cond: (o_custkey = customer.c_custkey)
+                          Heap Fetches: 63723
+Planning time: 0.840 ms
+Execution time: 908.147 ms
+Query 22: Elapsed time: 0.927000 s

@@ -1,0 +1,27 @@
+Limit  (cost=135573.65..135573.67 rows=10 width=44) (actual time=827.325..827.327 rows=10 loops=1)
+  ->  Sort  (cost=135573.65..136347.57 rows=309571 width=44) (actual time=827.322..827.323 rows=10 loops=1)
+        Sort Key: (sum((lineitem.l_extendedprice * ('1'::numeric - lineitem.l_discount)))) DESC, orders.o_orderdate
+        Sort Method: top-N heapsort  Memory: 26kB
+        ->  Finalize HashAggregate  (cost=125014.29..128883.93 rows=309571 width=44) (actual time=814.443..823.027 rows=11264 loops=1)
+              Group Key: lineitem.l_orderkey, orders.o_orderdate, orders.o_shippriority
+              ->  Gather  (cost=94379.64..121789.59 rows=257976 width=44) (actual time=788.356..799.836 rows=11264 loops=1)
+                    Workers Planned: 2
+                    Workers Launched: 2
+                    ->  Partial HashAggregate  (cost=93379.64..94991.99 rows=128988 width=44) (actual time=776.820..781.513 rows=3755 loops=3)
+                          Group Key: lineitem.l_orderkey, orders.o_orderdate, orders.o_shippriority
+                          ->  Nested Loop  (cost=0.86..91444.82 rows=128988 width=24) (actual time=2.209..765.166 rows=9914 loops=3)
+                                ->  Nested Loop  (cost=0.43..29067.01 rows=60155 width=12) (actual time=0.197..309.630 rows=48655 loops=3)
+                                      ->  Parallel Seq Scan on customer  (cost=0.00..4366.25 rows=12369 width=4) (actual time=0.051..24.304 rows=9983 loops=3)
+                                            Filter: (c_mktsegment = 'MACHINERY'::bpchar)
+                                            Rows Removed by Filter: 40017
+                                      ->  Index Scan using idx_orders_custkey on orders  (cost=0.43..1.91 rows=9 width=16) (actual time=0.007..0.027 rows=5 loops=29949)
+                                            Index Cond: (o_custkey = customer.c_custkey)
+                                            Filter: (o_orderdate < '1995-03-21'::date)
+                                            Rows Removed by Filter: 5
+                                ->  Index Scan using idx_lineitem_orderkey on lineitem  (cost=0.43..0.95 rows=9 width=16) (actual time=0.009..0.009 rows=0 loops=145966)
+                                      Index Cond: (l_orderkey = orders.o_orderkey)
+                                      Filter: (l_shipdate > '1995-03-21'::date)
+                                      Rows Removed by Filter: 4
+Planning time: 2.654 ms
+Execution time: 852.241 ms
+Query 3: Elapsed time: 0.948000 s
