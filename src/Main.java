@@ -26,7 +26,7 @@ public class Main {
         PGConnectionPoolDataSource pool = new PGConnectionPoolDataSource();
         pool.setDatabaseName("nina");
         pool.setUser("postgres");
-  //      pool.setServerName("192.168.10.21");
+        pool.setServerName("192.168.10.21");
 
        Person[] person = new Person[NUMBER_OF_THREADS];
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
