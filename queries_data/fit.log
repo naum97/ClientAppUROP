@@ -1,0 +1,62 @@
+
+
+*******************************************************************************
+Fri Aug  3 19:01:52 2018
+
+
+FIT:    data read from 'client2_query1' u ($2):($6)
+        format = x:z
+        x range restricted to [1.00000 : 10.0000]
+        #datapoints = 10
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = mean_y
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   mean_y       
+   0 9.8912361053e+03   0.00e+00  1.00e+00    1.000000e+00
+   4 4.7391982312e+00  -1.69e-10  1.00e-04    3.244280e+01
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 4.7392
+rel. change during last iteration : -1.6867e-15
+
+degrees of freedom    (FIT_NDF)                        : 9
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.725657
+variance of residuals (reduced chisquare) = WSSR/ndf   : 0.526578
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+mean_y          = 32.4428          +/- 0.2295       (0.7073%)
+
+
+*******************************************************************************
+Fri Aug  3 19:07:15 2018
+
+
+FIT:    data read from 'client2_query1' u ($2):($6)
+        format = x:z
+        x range restricted to [1.00000 : 10.0000]
+        #datapoints = 10
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = mean_y
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   mean_y       
+   0 9.8912361053e+03   0.00e+00  1.00e+00    1.000000e+00
+   4 4.7391982312e+00  -1.69e-10  1.00e-04    3.244280e+01
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 4.7392
+rel. change during last iteration : -1.6867e-15
+
+degrees of freedom    (FIT_NDF)                        : 9
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.725657
+variance of residuals (reduced chisquare) = WSSR/ndf   : 0.526578
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+mean_y          = 32.4428          +/- 0.2295       (0.7073%)

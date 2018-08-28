@@ -1,15 +1,11 @@
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Random;
+import java.sql.DatabaseMetaData
 import java.util.concurrent.ThreadLocalRandom;
-import java.sql.ResultSet;
 
 
 public class Utilities {
@@ -109,6 +105,7 @@ public class Utilities {
         String sql;
         String date = String.format("%d-%02d-01", year, month);
         sql = Queries.sql15_view.replace("?", String.format("'%s'", date));
+        DatabaseMetaData dbm = conn.getMetaData();
         //long startTime = System.currentTimeMillis();
         conn.createStatement().execute(sql);
         ResultSet rs = conn.createStatement().executeQuery(Queries.sql15);

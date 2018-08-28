@@ -1,10 +1,10 @@
-Query 1: Elapsed time: 32.515999 s
-Query 1: Elapsed time: 32.580002 s
-Query 1: Elapsed time: 32.518002 s
-Query 1: Elapsed time: 32.769001 s
-Query 1: Elapsed time: 32.332001 s
-Query 1: Elapsed time: 32.585999 s
-Query 1: Elapsed time: 32.669998 s
-Query 1: Elapsed time: 33.592999 s
-Query 1: Elapsed time: 32.191002 s
-Query 1: Elapsed time: 30.673000 s
+Query 1 : Elapsed time: 32.515999 s
+Query 2 : Elapsed time: 32.580002 s
+Query 3 : Elapsed time: 32.518002 s
+Query 4 : Elapsed time: 32.769001 s
+Query 5 : Elapsed time: 32.332001 s
+Query 6 : Elapsed time: 32.585999 s
+Query 7 : Elapsed time: 32.669998 s
+Query 8 : Elapsed time: 33.592999 s
+Query 9 : Elapsed time: 32.191002 s
+Query 10 : Elapsed time: 30.673000 s
